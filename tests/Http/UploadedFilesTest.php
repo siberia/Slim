@@ -17,11 +17,11 @@ use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-class UploadedFilesTest extends TestCase
+final class UploadedFilesTest extends TestCase
 {
-    static private $filename = './phpUxcOty';
+    private static $filename = './phpUxcOty';
 
-    static private $tmpFiles = ['./phpUxcOty'];
+    private static $tmpFiles = ['./phpUxcOty'];
 
     public static function setUpBeforeClass(): void
     {
