@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,13 +8,13 @@
 namespace Slim\Tests\Http;
 
 use InvalidArgumentException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
 use Slim\Http\Cookies;
 use stdClass;
 
-class CookiesTest extends PHPUnit_Framework_TestCase
+class CookiesTest extends TestCase
 {
     public function testConstructor()
     {

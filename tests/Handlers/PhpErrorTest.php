@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -9,16 +9,16 @@ namespace Slim\Tests\Handlers;
 
 use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\PhpError;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Throwable;
 use UnexpectedValueException;
 
-class PhpErrorTest extends PHPUnit_Framework_TestCase
+class PhpErrorTest extends TestCase
 {
-    public function phpErrorProvider()
+    public function phpErrorProvider(): array
     {
         return [
             ['application/json', 'application/json', '{'],

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,14 +7,14 @@
 
 namespace Slim\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
 
-class DeferredCallableTest extends PHPUnit_Framework_TestCase
+class DeferredCallableTest extends TestCase
 {
-    public function testItResolvesCallable()
+    public function testItResolvesCallable(): void
     {
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
@@ -25,7 +25,7 @@ class DeferredCallableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
-    public function testItBindsClosuresToContainer()
+    public function testItBindsClosuresToContainer(): void
     {
         $assertCalled = $this->getMockBuilder('StdClass')->setMethods(['foo'])->getMock();
         $assertCalled

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,23 +8,23 @@
 namespace Slim\Tests;
 
 use InvalidArgumentException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Slim\Container;
 
-class ContainerTest extends PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     /**
      * @var Container
      */
     protected $container;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = new Container;
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
     }
@@ -32,7 +32,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException \Slim\Exception\ContainerValueNotFoundException
      */
-    public function testGetWithValueNotFoundError()
+    public function testGetWithValueNotFoundError(): void
     {
         $this->container->get('foo');
     }

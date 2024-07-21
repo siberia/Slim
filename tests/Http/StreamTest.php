@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,11 +7,11 @@
 
 namespace Slim\Tests\Http;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Slim\Http\Stream;
 
-class StreamTest extends PHPUnit_Framework_TestCase
+class StreamTest extends TestCase
 {
     /**
      * @var resource pipe stream file handle
@@ -23,14 +23,14 @@ class StreamTest extends PHPUnit_Framework_TestCase
      */
     private $pipeStream;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->pipeFh != null) {
             stream_get_contents($this->pipeFh); // prevent broken pipe error message
         }
     }
 
-    public function testIsPipe()
+    public function testIsPipe(): void
     {
         $this->openPipeStream();
 
@@ -44,14 +44,14 @@ class StreamTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($fileStream->isPipe());
     }
 
-    public function testIsPipeReadable()
+    public function testIsPipeReadable(): void
     {
         $this->openPipeStream();
 
         $this->assertTrue($this->pipeStream->isReadable());
     }
 
-    public function testPipeIsNotSeekable()
+    public function testPipeIsNotSeekable(): void
     {
         $this->openPipeStream();
 
@@ -61,7 +61,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException RuntimeException
      */
-    public function testCannotSeekPipe()
+    public function testCannotSeekPipe(): void
     {
         $this->openPipeStream();
 
@@ -71,7 +71,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException RuntimeException
      */
-    public function testCannotTellPipe()
+    public function testCannotTellPipe(): void
     {
         $this->openPipeStream();
 

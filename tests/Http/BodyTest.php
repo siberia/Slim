@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,11 +8,11 @@
 namespace Slim\Tests\Http;
 
 use InvalidArgumentException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Http\Body;
 
-class BodyTest extends PHPUnit_Framework_TestCase
+class BodyTest extends TestCase
 {
     /**
      * @var string
@@ -25,7 +25,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
      */
     protected $stream;
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (is_resource($this->stream) === true) {
             fclose($this->stream);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,27 +7,27 @@
 
 namespace Slim\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 
-class CallableResolverTest extends PHPUnit_Framework_TestCase
+class CallableResolverTest extends TestCase
 {
     /**
      * @var Container
      */
     private $container;
 
-    public function setUp()
+    public function setUp(): void
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
         $this->container = new Container();
     }
 
-    public function testClosure()
+    public function testClosure(): void
     {
         $test = function () {
             static $called_count = 0;
@@ -39,7 +39,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $callable());
     }
 
-    public function testFunctionName()
+    public function testFunctionName(): void
     {
         // @codingStandardsIgnoreStart
         function testCallable()

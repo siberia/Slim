@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,11 +7,11 @@
 
 namespace Slim\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Collection;
 
-class CollectionTest extends PHPUnit_Framework_TestCase
+class CollectionTest extends TestCase
 {
     /**
      * @var Collection
@@ -23,14 +23,14 @@ class CollectionTest extends PHPUnit_Framework_TestCase
      */
     protected $property;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->bag = new Collection();
         $this->property = new ReflectionProperty($this->bag, 'data');
         $this->property->setAccessible(true);
     }
 
-    public function testInitializeWithData()
+    public function testInitializeWithData(): void
     {
         $bag = new Collection(['foo' => 'bar']);
         $bagProperty = new ReflectionProperty($bag, 'data');

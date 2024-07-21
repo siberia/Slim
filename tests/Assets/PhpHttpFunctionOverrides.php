@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -31,7 +31,7 @@ function getallheaders()
  * @param bool     $replace
  * @param int|null $statusCode
  */
-function header($string, $replace = true, $statusCode = null)
+function header(string $string, bool $replace = true, ?int $statusCode = null)
 {
     HeaderStack::push(
         [

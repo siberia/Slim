@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,13 +8,13 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\NotFound;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 
-class NotFoundTest extends PHPUnit_Framework_TestCase
+class NotFoundTest extends TestCase
 {
     public function notFoundProvider()
     {

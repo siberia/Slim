@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,7 +7,7 @@
 
 namespace Slim\Tests\Http;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -17,20 +17,20 @@ use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-class UploadedFilesTest extends PHPUnit_Framework_TestCase
+class UploadedFilesTest extends TestCase
 {
     static private $filename = './phpUxcOty';
 
     static private $tmpFiles = ['./phpUxcOty'];
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $fh = fopen(self::$filename, "w");
         fwrite($fh, "12345678");
         fclose($fh);
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         foreach (self::$tmpFiles as $filename) {
             if (file_exists($filename)) {
@@ -42,7 +42,7 @@ class UploadedFilesTest extends PHPUnit_Framework_TestCase
     /**
      * @return UploadedFile
      */
-    protected function generateNewTmpFile()
+    protected function generateNewTmpFile(): UploadedFile
     {
         $filename = './php'.microtime();
 
@@ -229,7 +229,7 @@ class UploadedFilesTest extends PHPUnit_Framework_TestCase
         $movedFileContents = ob_get_clean();
 
         $this->assertEquals($contents, $movedFileContents);
-        $this->assertFileNotExists($uploadedFile->file);
+        $this->assertFileDoesNotExists($uploadedFile->file);
     }
 
     public function providerCreateFromEnvironment()

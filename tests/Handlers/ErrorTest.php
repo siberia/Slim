@@ -9,7 +9,7 @@ namespace Slim\Tests\Handlers;
 
 use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
 use Slim\Handlers\Error;
@@ -17,9 +17,9 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use UnexpectedValueException;
 
-class ErrorTest extends PHPUnit_Framework_TestCase
+class ErrorTest extends TestCase
 {
-    public function errorProvider()
+    public function errorProvider(): array
     {
         return [
             ['application/json', 'application/json', '{'],

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -9,12 +9,12 @@ namespace Slim\Tests\Http;
 
 use InvalidArgumentException;
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Tests\Mocks\MessageStub;
 
-class MessageTest extends PHPUnit_Framework_TestCase
+class MessageTest extends TestCase
 {
     public function testGetProtocolVersion()
     {

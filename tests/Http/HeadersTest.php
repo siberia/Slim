@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,12 +7,12 @@
 
 namespace Slim\Tests\Http;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 
-class HeadersTest extends PHPUnit_Framework_TestCase
+class HeadersTest extends TestCase
 {
     public function testCreateFromEnvironment()
     {

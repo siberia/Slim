@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,14 +8,14 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\NotAllowed;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class NotAllowedTest extends PHPUnit_Framework_TestCase
+class NotAllowedTest extends TestCase
 {
-    public function invalidMethodProvider()
+    public function invalidMethodProvider(): array
     {
         return [
             ['application/json', 'application/json', '{'],

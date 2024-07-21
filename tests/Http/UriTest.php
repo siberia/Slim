@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,11 +8,11 @@
 namespace Slim\Tests\Http;
 
 use InvalidArgumentException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Http\Environment;
 use Slim\Http\Uri;
 
-class UriTest extends PHPUnit_Framework_TestCase
+class UriTest extends TestCase
 {
     protected $uri;
 

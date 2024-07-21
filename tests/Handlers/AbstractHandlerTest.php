@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -7,13 +7,13 @@
 
 namespace Slim\Tests\Handlers;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Slim\Handlers\AbstractHandler;
 
-class AbstractHandlerTest extends PHPUnit_Framework_TestCase
+class AbstractHandlerTest extends TestCase
 {
-    public function testHalfValidContentType()
+    public function testHalfValidContentType(): void
     {
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 

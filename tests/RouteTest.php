@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Slim Framework (https://slimframework.com)
  *
@@ -8,7 +8,7 @@
 namespace Slim\Tests;
 
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Http\Body;
@@ -22,9 +22,9 @@ use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 
-class RouteTest extends PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
-    public function routeFactory()
+    public function routeFactory(): Route
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
@@ -35,7 +35,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         return new Route($methods, $pattern, $callable);
     }
 
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
@@ -49,7 +49,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals($callable, 'callable', $route);
     }
 
-    public function testGetMethodsReturnsArrayWhenContructedWithString()
+    public function testGetMethodsReturnsArrayWhenContructedWithString(): void
     {
         $route = new Route('GET', '/hello', function ($req, $res, $args) {
             // Do something
@@ -58,12 +58,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(['GET'], $route->getMethods());
     }
 
-    public function testGetMethods()
+    public function testGetMethods(): void
     {
         $this->assertEquals(['GET', 'POST'], $this->routeFactory()->getMethods());
     }
 
-    public function testGetPattern()
+    public function testGetPattern(): void
     {
         $this->assertEquals('/hello/{name}', $this->routeFactory()->getPattern());
     }
