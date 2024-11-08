@@ -8,6 +8,9 @@
 
 Slim is a PHP micro-framework that helps you quickly write simple yet powerful web applications and APIs.
 
+This fork is an experimental sandbox for Slim 3.x to test out various newer php functionality like enabling strict_types,
+using newer versions of phpunit, etc.
+
 ## Installation
 
 It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
