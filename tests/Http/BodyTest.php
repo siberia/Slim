@@ -82,7 +82,7 @@ class BodyTest extends TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertEquals('php://temp', $body->getMetadata('uri'));
+        $this->assertSame('php://temp', $body->getMetadata('uri'));
     }
 
     public function testGetMetadataKeyNotFound()
@@ -128,7 +128,7 @@ class BodyTest extends TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertEquals($this->text, (string)$body);
+        $this->assertSame($this->text, (string)$body);
     }
 
     public function testToStringAttachedRewindsFirst()
@@ -136,9 +136,9 @@ class BodyTest extends TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertEquals($this->text, (string)$body);
-        $this->assertEquals($this->text, (string)$body);
-        $this->assertEquals($this->text, (string)$body);
+        $this->assertSame($this->text, (string)$body);
+        $this->assertSame($this->text, (string)$body);
+        $this->assertSame($this->text, (string)$body);
     }
 
     public function testToStringDetached()
@@ -149,7 +149,7 @@ class BodyTest extends TestCase
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
-        $this->assertEquals('', (string)$body);
+        $this->assertSame('', (string)$body);
     }
 
     public function testClose()
@@ -167,7 +167,7 @@ class BodyTest extends TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertEquals(mb_strlen($this->text), $body->getSize());
+        $this->assertSame(mb_strlen($this->text), $body->getSize());
     }
 
     public function testGetSizeDetached()
@@ -187,7 +187,7 @@ class BodyTest extends TestCase
         $body = new Body($this->stream);
         fseek($this->stream, 10);
 
-        $this->assertEquals(10, $body->tell());
+        $this->assertSame(10, $body->tell());
     }
 
     public function testTellDetachedThrowsRuntimeException()
@@ -310,7 +310,7 @@ class BodyTest extends TestCase
         $body = new Body($this->stream);
         $body->seek(10);
 
-        $this->assertEquals(10, ftell($this->stream));
+        $this->assertSame(10, ftell($this->stream));
     }
 
     public function testSeekDetachedThrowsRuntimeException()
@@ -330,7 +330,7 @@ class BodyTest extends TestCase
         fseek($this->stream, 10);
         $body->rewind();
 
-        $this->assertEquals(0, ftell($this->stream));
+        $this->assertSame(0, ftell($this->stream));
     }
 
     public function testRewindDetachedThrowsRuntimeException()
@@ -348,7 +348,7 @@ class BodyTest extends TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertEquals(substr($this->text, 0, 10), $body->read(10));
+        $this->assertSame(substr($this->text, 0, 10), $body->read(10));
     }
 
     public function testReadDetachedThrowsRuntimeException()
@@ -370,7 +370,7 @@ class BodyTest extends TestCase
         }
         $body->write('foo');
 
-        $this->assertEquals($this->text . 'foo', (string)$body);
+        $this->assertSame($this->text . 'foo', (string)$body);
     }
 
     public function testWriteDetachedThrowsRuntimeException()
@@ -389,7 +389,7 @@ class BodyTest extends TestCase
         $body = new Body($this->stream);
         fseek($this->stream, 10);
 
-        $this->assertEquals(substr($this->text, 10), $body->getContents());
+        $this->assertSame(substr($this->text, 10), $body->getContents());
     }
 
     public function testGetContentsDetachedThrowsRuntimeException()

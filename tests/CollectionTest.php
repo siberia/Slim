@@ -36,7 +36,7 @@ class CollectionTest extends TestCase
         $bagProperty = new ReflectionProperty($bag, 'data');
         $bagProperty->setAccessible(true);
 
-        $this->assertEquals(['foo' => 'bar'], $bagProperty->getValue($bag));
+        $this->assertSame(['foo' => 'bar'], $bagProperty->getValue($bag));
     }
 
     public function testSet()
@@ -44,7 +44,7 @@ class CollectionTest extends TestCase
         $this->bag->set('foo', 'bar');
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
         $bag =  $this->property->getValue($this->bag);
-        $this->assertEquals('bar', $bag['foo']);
+        $this->assertSame('bar', $bag['foo']);
     }
 
     public function testOffsetSet()
@@ -52,19 +52,19 @@ class CollectionTest extends TestCase
         $this->bag['foo'] = 'bar';
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
         $bag = $this->property->getValue($this->bag);
-        $this->assertEquals('bar', $bag['foo']);
+        $this->assertSame('bar', $bag['foo']);
     }
 
     public function testGet()
     {
         $this->property->setValue($this->bag, ['foo' => 'bar']);
-        $this->assertEquals('bar', $this->bag->get('foo'));
+        $this->assertSame('bar', $this->bag->get('foo'));
     }
 
     public function testGetWithDefault()
     {
         $this->property->setValue($this->bag, ['foo' => 'bar']);
-        $this->assertEquals('default', $this->bag->get('abc', 'default'));
+        $this->assertSame('default', $this->bag->get('abc', 'default'));
     }
 
     public function testReplace()
@@ -76,8 +76,8 @@ class CollectionTest extends TestCase
         $this->assertArrayHasKey('abc', $this->property->getValue($this->bag));
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
         $bag = $this->property->getValue($this->bag);
-        $this->assertEquals('123', $bag['abc']);
-        $this->assertEquals('bar', $bag['foo']);
+        $this->assertSame('123', $bag['abc']);
+        $this->assertSame('bar', $bag['foo']);
     }
 
     public function testAll()
@@ -87,7 +87,7 @@ class CollectionTest extends TestCase
             'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
-        $this->assertEquals($data, $this->bag->all());
+        $this->assertSame($data, $this->bag->all());
     }
 
     public function testKeys()
@@ -97,7 +97,7 @@ class CollectionTest extends TestCase
             'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
-        $this->assertEquals(['abc', 'foo'], $this->bag->keys());
+        $this->assertSame(['abc', 'foo'], $this->bag->keys());
     }
 
     public function testHas()
@@ -110,7 +110,7 @@ class CollectionTest extends TestCase
     public function testOffsetExists()
     {
         $this->property->setValue($this->bag, ['foo' => 'bar']);
-        $this->assertTrue(isset($this->bag['foo']));
+        $this->assertArrayHasKey('foo', $this->bag);
     }
 
     public function testRemove()
@@ -121,7 +121,7 @@ class CollectionTest extends TestCase
         ];
         $this->property->setValue($this->bag, $data);
         $this->bag->remove('foo');
-        $this->assertEquals(['abc' => '123'], $this->property->getValue($this->bag));
+        $this->assertSame(['abc' => '123'], $this->property->getValue($this->bag));
     }
 
     public function testOffsetUnset()
@@ -133,7 +133,7 @@ class CollectionTest extends TestCase
         $this->property->setValue($this->bag, $data);
 
         unset($this->bag['foo']);
-        $this->assertEquals(['abc' => '123'], $this->property->getValue($this->bag));
+        $this->assertSame(['abc' => '123'], $this->property->getValue($this->bag));
     }
 
     public function testClear()
@@ -144,12 +144,12 @@ class CollectionTest extends TestCase
         ];
         $this->property->setValue($this->bag, $data);
         $this->bag->clear();
-        $this->assertEquals([], $this->property->getValue($this->bag));
+        $this->assertSame([], $this->property->getValue($this->bag));
     }
 
     public function testCount()
     {
         $this->property->setValue($this->bag, ['foo' => 'bar', 'abc' => '123']);
-        $this->assertEquals(2, $this->bag->count());
+        $this->assertCount(2, $this->bag);
     }
 }

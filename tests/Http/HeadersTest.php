@@ -24,7 +24,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['accept']);
-        $this->assertEquals('application/json', $prop->getValue($h)['accept']['value'][0]);
+        $this->assertSame('application/json', $prop->getValue($h)['accept']['value'][0]);
     }
 
     public function testCreateFromEnvironmentWithSpecialHeaders()
@@ -37,7 +37,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['content-type']);
-        $this->assertEquals('application/json', $prop->getValue($h)['content-type']['value'][0]);
+        $this->assertSame('application/json', $prop->getValue($h)['content-type']['value'][0]);
     }
 
     public function testCreateFromEnvironmentIgnoresHeaders()
@@ -62,7 +62,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['content-length']);
-        $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
+        $this->assertSame(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
     public function testSetSingleValue()
@@ -73,7 +73,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['content-length']);
-        $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
+        $this->assertSame(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
     public function testSetArrayValue()
@@ -84,7 +84,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['allow']);
-        $this->assertEquals(['GET', 'POST'], $prop->getValue($h)['allow']['value']);
+        $this->assertSame(['GET', 'POST'], $prop->getValue($h)['allow']['value']);
     }
 
     public function testGet()
@@ -99,7 +99,7 @@ class HeadersTest extends TestCase
             ]
         ]);
 
-        $this->assertEquals(['GET', 'POST'], $h->get('Allow'));
+        $this->assertSame(['GET', 'POST'], $h->get('Allow'));
     }
 
     public function testGetOriginalKey()
@@ -110,8 +110,8 @@ class HeadersTest extends TestCase
 
         $value = $h->get('test-key');
 
-        $this->assertEquals('testValue', reset($value));
-        $this->assertEquals('http-test_key', $h->getOriginalKey('test-key'));
+        $this->assertSame('testValue', reset($value));
+        $this->assertSame('http-test_key', $h->getOriginalKey('test-key'));
         $this->assertNull($h->getOriginalKey('test-non-existing'));
     }
 
@@ -130,7 +130,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['foo']);
-        $this->assertEquals(['Bar'], $prop->getValue($h)['foo']['value']);
+        $this->assertSame(['Bar'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testAddAnotherValue()
@@ -142,7 +142,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['foo']);
-        $this->assertEquals(['Bar', 'Xyz'], $prop->getValue($h)['foo']['value']);
+        $this->assertSame(['Bar', 'Xyz'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testAddArrayValue()
@@ -154,7 +154,7 @@ class HeadersTest extends TestCase
         $prop->setAccessible(true);
 
         $this->assertInternalType('array', $prop->getValue($h)['foo']);
-        $this->assertEquals(['Bar', 'Xyz', '123'], $prop->getValue($h)['foo']['value']);
+        $this->assertSame(['Bar', 'Xyz', '123'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testHas()
@@ -207,12 +207,12 @@ class HeadersTest extends TestCase
     public function testNormalizeKey()
     {
         $h = new Headers();
-        $this->assertEquals('foo-bar', $h->normalizeKey('HTTP_FOO_BAR'));
-        $this->assertEquals('foo-bar', $h->normalizeKey('HTTP-FOO-BAR'));
-        $this->assertEquals('foo-bar', $h->normalizeKey('Http-Foo-Bar'));
-        $this->assertEquals('foo-bar', $h->normalizeKey('Http_Foo_Bar'));
-        $this->assertEquals('foo-bar', $h->normalizeKey('http_foo_bar'));
-        $this->assertEquals('foo-bar', $h->normalizeKey('http-foo-bar'));
+        $this->assertSame('foo-bar', $h->normalizeKey('HTTP_FOO_BAR'));
+        $this->assertSame('foo-bar', $h->normalizeKey('HTTP-FOO-BAR'));
+        $this->assertSame('foo-bar', $h->normalizeKey('Http-Foo-Bar'));
+        $this->assertSame('foo-bar', $h->normalizeKey('Http_Foo_Bar'));
+        $this->assertSame('foo-bar', $h->normalizeKey('http_foo_bar'));
+        $this->assertSame('foo-bar', $h->normalizeKey('http-foo-bar'));
     }
 
     public function testDetermineAuthorization()
@@ -221,8 +221,8 @@ class HeadersTest extends TestCase
         $en = Headers::determineAuthorization($e);
         $h = Headers::createFromEnvironment($e);
 
-        $this->assertEquals('electrolytes', $en->get('HTTP_AUTHORIZATION'));
-        $this->assertEquals(['electrolytes'], $h->get('Authorization'));
+        $this->assertSame('electrolytes', $en->get('HTTP_AUTHORIZATION'));
+        $this->assertSame(['electrolytes'], $h->get('Authorization'));
     }
 
     public function testDetermineAuthorizationReturnsEarlyIfHeadersIsNotArray()

@@ -31,17 +31,17 @@ class NonBufferedBodyTest extends TestCase
         $body->seek(0);
         $body->rewind();
 
-        self::assertSame('', (string) $body, 'Casting to string returns no data, since the class does not store any');
-        self::assertNull($body->detach(), 'Returns null since there is no such underlying stream');
-        self::assertNull($body->getSize(), 'Current size is undefined');
-        self::assertSame(0, $body->tell(), 'Pointer is considered to be at position 0 to conform');
-        self::assertTrue($body->eof(), 'Always considered to be at EOF');
-        self::assertFalse($body->isSeekable(), 'Cannot seek');
-        self::assertTrue($body->isWritable(), 'Body is writable');
-        self::assertFalse($body->isReadable(), 'Body is not readable');
-        self::assertSame('', $body->read(10), 'Data cannot be retrieved once written');
-        self::assertSame('', $body->getContents(), 'Data cannot be retrieved once written');
-        self::assertNull($body->getMetadata(), 'Metadata mechanism is not implemented');
+        $this->assertSame('', (string) $body, 'Casting to string returns no data, since the class does not store any');
+        $this->assertNull($body->detach(), 'Returns null since there is no such underlying stream');
+        $this->assertNull($body->getSize(), 'Current size is undefined');
+        $this->assertSame(0, $body->tell(), 'Pointer is considered to be at position 0 to conform');
+        $this->assertTrue($body->eof(), 'Always considered to be at EOF');
+        $this->assertFalse($body->isSeekable(), 'Cannot seek');
+        $this->assertTrue($body->isWritable(), 'Body is writable');
+        $this->assertFalse($body->isReadable(), 'Body is not readable');
+        $this->assertSame('', $body->read(10), 'Data cannot be retrieved once written');
+        $this->assertSame('', $body->getContents(), 'Data cannot be retrieved once written');
+        $this->assertNull($body->getMetadata(), 'Metadata mechanism is not implemented');
     }
 
     public function testWrite()
@@ -70,9 +70,9 @@ class NonBufferedBodyTest extends TestCase
         unset($GLOBALS['ob_get_level_shift']);
         $contents = ob_get_clean();
 
-        $this->assertEquals(strlen('buffer content: ') + strlen('hello '), $length0);
-        $this->assertEquals(strlen('world'), $length1);
-        $this->assertEquals('buffer content: hello world', $contents);
+        $this->assertSame(strlen('buffer content: ') + strlen('hello '), $length0);
+        $this->assertSame(strlen('world'), $length1);
+        $this->assertSame('buffer content: hello world', $contents);
     }
 
     public function testWithHeader()
@@ -81,7 +81,7 @@ class NonBufferedBodyTest extends TestCase
             ->withBody(new NonBufferedBody())
             ->withHeader('Foo', 'Bar');
 
-        self::assertSame([
+        $this->assertSame([
             [
                 'header' => 'Foo: Bar',
                 'replace' => true,
@@ -97,7 +97,7 @@ class NonBufferedBodyTest extends TestCase
             ->withHeader('Foo', 'Bar')
             ->withAddedHeader('Foo', 'Baz');
 
-        self::assertSame([
+        $this->assertSame([
             [
                 'header' => 'Foo: Bar',
                 'replace' => true,
@@ -119,6 +119,6 @@ class NonBufferedBodyTest extends TestCase
             ->withHeader('Foo', 'Bar')
             ->withoutHeader('Foo');
 
-        self::assertSame([], HeaderStack::stack());
+        $this->assertSame([], HeaderStack::stack());
     }
 }

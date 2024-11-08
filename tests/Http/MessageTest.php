@@ -21,7 +21,7 @@ class MessageTest extends TestCase
         $message = new MessageStub();
         $message->protocolVersion = '1.0';
 
-        $this->assertEquals('1.0', $message->getProtocolVersion());
+        $this->assertSame('1.0', $message->getProtocolVersion());
     }
 
     public function testWithProtocolVersion()
@@ -29,7 +29,7 @@ class MessageTest extends TestCase
         $message = new MessageStub();
         $clone = $message->withProtocolVersion('1.0');
 
-        $this->assertEquals('1.0', $clone->protocolVersion);
+        $this->assertSame('1.0', $clone->protocolVersion);
     }
 
     /**
@@ -46,7 +46,7 @@ class MessageTest extends TestCase
         $message = new MessageStub();
         $clone = $message->withProtocolVersion('2');
 
-        $this->assertEquals('2', $clone->protocolVersion);
+        $this->assertSame('2', $clone->protocolVersion);
     }
 
     public function testGetHeaders()
@@ -67,7 +67,7 @@ class MessageTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($shouldBe, $message->getHeaders());
+        $this->assertSame($shouldBe, $message->getHeaders());
     }
 
     public function testHasHeader()
@@ -92,8 +92,8 @@ class MessageTest extends TestCase
         $message = new MessageStub();
         $message->headers = $headers;
 
-        $this->assertEquals('one,two,three', $message->getHeaderLine('X-Foo'));
-        $this->assertEquals('', $message->getHeaderLine('X-Bar'));
+        $this->assertSame('one,two,three', $message->getHeaderLine('X-Foo'));
+        $this->assertSame('', $message->getHeaderLine('X-Bar'));
     }
 
     public function testGetHeader()
@@ -106,8 +106,8 @@ class MessageTest extends TestCase
         $message = new MessageStub();
         $message->headers = $headers;
 
-        $this->assertEquals(['one', 'two', 'three'], $message->getHeader('X-Foo'));
-        $this->assertEquals([], $message->getHeader('X-Bar'));
+        $this->assertSame(['one', 'two', 'three'], $message->getHeader('X-Foo'));
+        $this->assertSame([], $message->getHeader('X-Bar'));
     }
 
     public function testWithHeader()
@@ -118,7 +118,7 @@ class MessageTest extends TestCase
         $message->headers = $headers;
         $clone = $message->withHeader('X-Foo', 'bar');
 
-        $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
+        $this->assertSame('bar', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithAddedHeader()
@@ -129,7 +129,7 @@ class MessageTest extends TestCase
         $message->headers = $headers;
         $clone = $message->withAddedHeader('X-Foo', 'two');
 
-        $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
+        $this->assertSame('one,two', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithoutHeader()
@@ -144,7 +144,7 @@ class MessageTest extends TestCase
             'X-Bar' => ['two'],
         ];
 
-        $this->assertEquals($shouldBe, $clone->getHeaders());
+        $this->assertSame($shouldBe, $clone->getHeaders());
     }
 
     public function testGetBody()
@@ -174,7 +174,7 @@ class MessageTest extends TestCase
     protected function getBody()
     {
         return $this
-            ->getMockBuilder('Slim\Http\Body')
+            ->getMockBuilder(\Slim\Http\Body::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

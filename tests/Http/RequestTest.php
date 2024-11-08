@@ -24,6 +24,7 @@ use Slim\Http\Uri;
 
 class RequestTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     public function requestFactory($envData = [])
     {
         $env = Environment::mock($envData);
@@ -47,14 +48,14 @@ class RequestTest extends TestCase
         $request = $this->requestFactory();
         $request->foo = 'bar';
 
-        $this->assertFalse(property_exists($request, 'foo'));
+        $this->assertObjectNotHasProperty('foo', $request);
     }
 
     public function testDoesNotAddHostHeaderFromUriIfAlreadySet()
     {
         $request = $this->requestFactory();
 
-        $this->assertEquals('localhost', $request->getHeaderLine('Host'));
+        $this->assertSame('localhost', $request->getHeaderLine('Host'));
     }
 
     public function testAddsHostHeaderFromUriIfNotSet()
@@ -77,7 +78,7 @@ class RequestTest extends TestCase
 
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
-        $this->assertEquals('example.com', $request->getHeaderLine('Host'));
+        $this->assertSame('example.com', $request->getHeaderLine('Host'));
     }
 
     public function testAddsPortToHostHeaderIfSetWhenHostHeaderIsMissingFromRequest()
@@ -100,7 +101,7 @@ class RequestTest extends TestCase
 
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
-        $this->assertEquals('example.com:8443', $request->getHeaderLine('Host'));
+        $this->assertSame('example.com:8443', $request->getHeaderLine('Host'));
     }
 
     public function testDoesntAddHostHeaderFromUriIfNeitherAreSet()
@@ -124,17 +125,17 @@ class RequestTest extends TestCase
 
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
-        $this->assertEquals('', $request->getHeaderLine('Host'));
+        $this->assertSame('', $request->getHeaderLine('Host'));
     }
 
     public function testGetMethod()
     {
-        $this->assertEquals('GET', $this->requestFactory()->getMethod());
+        $this->assertSame('GET', $this->requestFactory()->getMethod());
     }
 
     public function testGetOriginalMethod()
     {
-        $this->assertEquals('GET', $this->requestFactory()->getOriginalMethod());
+        $this->assertSame('GET', $this->requestFactory()->getOriginalMethod());
     }
 
     public function testWithMethod()
@@ -177,7 +178,7 @@ class RequestTest extends TestCase
         ]);
 
         $request = Request::createFromEnvironment($env);
-        $this->assertEquals('POST', $request->getMethod());
+        $this->assertSame('POST', $request->getMethod());
         $this->assertEquals($env->all(), $request->getServerParams());
     }
 
@@ -195,7 +196,7 @@ class RequestTest extends TestCase
         $request = Request::createFromEnvironment($env);
         unset($_POST);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testCreateFromEnvironmentWithMultipartAndQueryParams()
@@ -214,8 +215,8 @@ class RequestTest extends TestCase
         unset($_POST);
 
         # Fixes the bug that would make it previously return [ 0 => 'bar' ]
-        $this->assertEquals(['123' => 'bar'], $request->getParams());
-        $this->assertEquals(['123' => 'zar'], $request->getQueryParams());
+        $this->assertSame(['123' => 'bar'], $request->getParams());
+        $this->assertSame(['123' => 'zar'], $request->getQueryParams());
     }
 
     public function testCreateFromEnvironmentWithMultipartMethodOverride()
@@ -232,8 +233,8 @@ class RequestTest extends TestCase
         $request = Request::createFromEnvironment($env);
         unset($_POST);
 
-        $this->assertEquals('POST', $request->getOriginalMethod());
-        $this->assertEquals('PUT', $request->getMethod());
+        $this->assertSame('POST', $request->getOriginalMethod());
+        $this->assertSame('PUT', $request->getMethod());
     }
 
     public function testGetMethodWithOverrideHeader()
@@ -247,8 +248,8 @@ class RequestTest extends TestCase
         $body = new RequestBody();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals('PUT', $request->getMethod());
-        $this->assertEquals('POST', $request->getOriginalMethod());
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('POST', $request->getOriginalMethod());
     }
 
     public function testGetMethodWithOverrideParameterFromBodyObject()
@@ -264,8 +265,8 @@ class RequestTest extends TestCase
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals('PUT', $request->getMethod());
-        $this->assertEquals('POST', $request->getOriginalMethod());
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('POST', $request->getOriginalMethod());
     }
 
     public function testGetMethodOverrideParameterFromBodyArray()
@@ -285,7 +286,7 @@ class RequestTest extends TestCase
             return $body; // <-- Array
         });
 
-        $this->assertEquals('PUT', $request->getMethod());
+        $this->assertSame('PUT', $request->getMethod());
     }
 
     /**
@@ -401,7 +402,7 @@ class RequestTest extends TestCase
 
     public function testGetRequestTarget()
     {
-        $this->assertEquals('/foo/bar?abc=123', $this->requestFactory()->getRequestTarget());
+        $this->assertSame('/foo/bar?abc=123', $this->requestFactory()->getRequestTarget());
     }
 
     public function testGetRequestTargetAlreadySet()
@@ -411,7 +412,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, '/foo/bar?abc=123');
 
-        $this->assertEquals('/foo/bar?abc=123', $request->getRequestTarget());
+        $this->assertSame('/foo/bar?abc=123', $request->getRequestTarget());
     }
 
     public function testGetRequestTargetIfNoUri()
@@ -421,7 +422,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, null);
 
-        $this->assertEquals('/', $request->getRequestTarget());
+        $this->assertSame('/', $request->getRequestTarget());
     }
 
     public function testGetRequestTargetWithSlimPsr7Uri()
@@ -443,7 +444,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, $uriProphecy->reveal());
 
-        $this->assertEquals($basePath . '/' . $path . '?' . $query, $request->getRequestTarget());
+        $this->assertSame($basePath . '/' . $path . '?' . $query, $request->getRequestTarget());
     }
 
     public function testGetRequestTargetWithNonSlimPsr7Uri()
@@ -456,7 +457,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, $uriProphecy->reveal());
 
-        $this->assertEquals('/', $request->getRequestTarget());
+        $this->assertSame('/', $request->getRequestTarget());
     }
 
     public function testWithRequestTarget()
@@ -549,7 +550,7 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals('application/json;charset=utf8', $request->getContentType());
+        $this->assertSame('application/json;charset=utf8', $request->getContentType());
     }
 
     public function testGetContentTypeEmpty()
@@ -569,7 +570,7 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals('application/json', $request->getMediaType());
+        $this->assertSame('application/json', $request->getMediaType());
     }
 
     public function testGetMediaTypeEmpty()
@@ -589,7 +590,7 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals(['charset' => 'utf8', 'foo' => 'bar'], $request->getMediaTypeParams());
+        $this->assertSame(['charset' => 'utf8', 'foo' => 'bar'], $request->getMediaTypeParams());
     }
 
     public function testGetMediaTypeParamsEmpty()
@@ -602,14 +603,14 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals([], $request->getMediaTypeParams());
+        $this->assertSame([], $request->getMediaTypeParams());
     }
 
     public function testGetMediaTypeParamsWithoutHeader()
     {
         $request = $this->requestFactory();
 
-        $this->assertEquals([], $request->getMediaTypeParams());
+        $this->assertSame([], $request->getMediaTypeParams());
     }
 
     public function testGetContentCharset()
@@ -622,7 +623,7 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals('utf8', $request->getContentCharset());
+        $this->assertSame('utf8', $request->getContentCharset());
     }
 
     public function testGetContentCharsetEmpty()
@@ -655,7 +656,7 @@ class RequestTest extends TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals(150, $request->getContentLength());
+        $this->assertSame(150, $request->getContentLength());
     }
 
     public function testGetContentLengthWithoutHeader()
@@ -669,14 +670,14 @@ class RequestTest extends TestCase
     {
         $shouldBe = 'john';
 
-        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('user'));
+        $this->assertSame($shouldBe, $this->requestFactory()->getCookieParam('user'));
     }
 
     public function testGetCookieParamWithDefault()
     {
         $shouldBe = 'bar';
 
-        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('foo', 'bar'));
+        $this->assertSame($shouldBe, $this->requestFactory()->getCookieParam('foo', 'bar'));
     }
 
     public function testGetCookieParams()
@@ -686,7 +687,7 @@ class RequestTest extends TestCase
             'id' => '123',
         ];
 
-        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParams());
+        $this->assertSame($shouldBe, $this->requestFactory()->getCookieParams());
     }
 
     public function testWithCookieParams()
@@ -694,12 +695,12 @@ class RequestTest extends TestCase
         $request = $this->requestFactory();
         $clone = $request->withCookieParams(['type' => 'framework']);
 
-        $this->assertEquals(['type' => 'framework'], $clone->getCookieParams());
+        $this->assertSame(['type' => 'framework'], $clone->getCookieParams());
     }
 
     public function testGetQueryParams()
     {
-        $this->assertEquals(['abc' => '123'], $this->requestFactory()->getQueryParams());
+        $this->assertSame(['abc' => '123'], $this->requestFactory()->getQueryParams());
     }
 
     public function testGetQueryParamsAlreadySet()
@@ -709,7 +710,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, ['foo' => 'bar']);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getQueryParams());
+        $this->assertSame(['foo' => 'bar'], $request->getQueryParams());
     }
 
     public function testWithQueryParams()
@@ -718,8 +719,8 @@ class RequestTest extends TestCase
         $clone = $request->withQueryParams(['foo' => 'bar']);
         $cloneUri = $clone->getUri();
 
-        $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
-        $this->assertEquals(['foo' => 'bar'], $clone->getQueryParams()); // <-- Changed
+        $this->assertSame('abc=123', $cloneUri->getQuery()); // <-- Unchanged
+        $this->assertSame(['foo' => 'bar'], $clone->getQueryParams()); // <-- Changed
     }
 
     public function testWithQueryParamsEmptyArray()
@@ -728,8 +729,8 @@ class RequestTest extends TestCase
         $clone = $request->withQueryParams([]);
         $cloneUri = $clone->getUri();
 
-        $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
-        $this->assertEquals([], $clone->getQueryParams()); // <-- Changed
+        $this->assertSame('abc=123', $cloneUri->getQuery()); // <-- Unchanged
+        $this->assertSame([], $clone->getQueryParams()); // <-- Changed
     }
 
     public function testGetQueryParamsWithoutUri()
@@ -739,7 +740,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, null);
 
-        $this->assertEquals([], $request->getQueryParams());
+        $this->assertSame([], $request->getQueryParams());
     }
 
     public function testWithUploadedFiles()
@@ -749,7 +750,7 @@ class RequestTest extends TestCase
         $request = $this->requestFactory();
         $clone = $request->withUploadedFiles($files);
 
-        $this->assertEquals([], $request->getUploadedFiles());
+        $this->assertSame([], $request->getUploadedFiles());
         $this->assertEquals($files, $clone->getUploadedFiles());
     }
 
@@ -781,14 +782,14 @@ class RequestTest extends TestCase
         $shouldBe = 'HTTP/1.1';
         $request = $this->requestFactory(['SERVER_PROTOCOL' => 'HTTP/1.1']);
 
-        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('SERVER_PROTOCOL'));
+        $this->assertSame($shouldBe, $this->requestFactory()->getServerParam('SERVER_PROTOCOL'));
     }
 
     public function testGetServerParamWithDefault()
     {
         $shouldBe = 'bar';
 
-        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('HTTP_NOT_EXIST', 'bar'));
+        $this->assertSame($shouldBe, $this->requestFactory()->getServerParam('HTTP_NOT_EXIST', 'bar'));
     }
 
     public function testGetAttributes()
@@ -798,7 +799,7 @@ class RequestTest extends TestCase
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
-        $this->assertEquals(['foo' => 'bar'], $request->getAttributes());
+        $this->assertSame(['foo' => 'bar'], $request->getAttributes());
     }
 
     public function testGetAttribute()
@@ -808,9 +809,9 @@ class RequestTest extends TestCase
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
-        $this->assertEquals('bar', $request->getAttribute('foo'));
+        $this->assertSame('bar', $request->getAttribute('foo'));
         $this->assertNull($request->getAttribute('bar'));
-        $this->assertEquals(2, $request->getAttribute('bar', 2));
+        $this->assertSame(2, $request->getAttribute('bar', 2));
     }
 
     public function testWithAttribute()
@@ -821,7 +822,7 @@ class RequestTest extends TestCase
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withAttribute('test', '123');
 
-        $this->assertEquals('123', $clone->getAttribute('test'));
+        $this->assertSame('123', $clone->getAttribute('test'));
     }
 
     public function testWithAttributes()
@@ -833,7 +834,7 @@ class RequestTest extends TestCase
         $clone = $request->withAttributes(['test' => '123']);
 
         $this->assertNull($clone->getAttribute('foo'));
-        $this->assertEquals('123', $clone->getAttribute('test'));
+        $this->assertSame('123', $clone->getAttribute('test'));
     }
 
     public function testWithoutAttribute()
@@ -858,7 +859,7 @@ class RequestTest extends TestCase
         $body = new RequestBody();
         $body->write('foo=bar');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyJson()
@@ -873,7 +874,7 @@ class RequestTest extends TestCase
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyInvalidJson()
@@ -918,7 +919,7 @@ class RequestTest extends TestCase
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyWithJsonStructuredSuffixAndRegisteredParser()
@@ -933,11 +934,9 @@ class RequestTest extends TestCase
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $request->registerMediaTypeParser('application/vnd.api+json', function ($input) {
-            return ['data' => $input];
-        });
+        $request->registerMediaTypeParser('application/vnd.api+json', fn($input) => ['data' => $input]);
 
-        $this->assertEquals(['data' => '{"foo":"bar"}'], $request->getParsedBody());
+        $this->assertSame(['data' => '{"foo":"bar"}'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyXml()
@@ -952,7 +951,7 @@ class RequestTest extends TestCase
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals('Josh', $request->getParsedBody()->name);
+        $this->assertSame('Josh', $request->getParsedBody()->name);
     }
 
     public function testGetParsedBodyWithXmlStructuredSuffix()
@@ -967,7 +966,7 @@ class RequestTest extends TestCase
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals('Josh', $request->getParsedBody()->name);
+        $this->assertSame('Josh', $request->getParsedBody()->name);
     }
 
     public function testGetParsedBodyXmlWithTextXMLMediaType()
@@ -982,7 +981,7 @@ class RequestTest extends TestCase
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals('Josh', $request->getParsedBody()->name);
+        $this->assertSame('Josh', $request->getParsedBody()->name);
     }
 
     /**
@@ -1028,7 +1027,7 @@ class RequestTest extends TestCase
         $prop->setAccessible(true);
         $prop->setValue($request, ['foo' => 'bar']);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyWhenBodyDoesNotExist()
@@ -1054,7 +1053,7 @@ class RequestTest extends TestCase
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+        $this->assertSame(['foo' => 'bar'], $request->getParsedBody());
 
         $newBody = new RequestBody();
         $newBody->write('abc=123');
@@ -1062,7 +1061,7 @@ class RequestTest extends TestCase
         $request = $request->withBody($newBody);
         $request->reparseBody();
 
-        $this->assertEquals(['abc' => '123'], $request->getParsedBody());
+        $this->assertSame(['abc' => '123'], $request->getParsedBody());
     }
 
     /**
@@ -1090,7 +1089,7 @@ class RequestTest extends TestCase
     {
         $clone = $this->requestFactory()->withParsedBody(['xyz' => '123']);
 
-        $this->assertEquals(['xyz' => '123'], $clone->getParsedBody());
+        $this->assertSame(['xyz' => '123'], $clone->getParsedBody());
     }
 
     public function testWithParsedBodyEmptyArray()
@@ -1108,7 +1107,7 @@ class RequestTest extends TestCase
 
         $clone = $request->withParsedBody([]);
 
-        $this->assertEquals([], $clone->getParsedBody());
+        $this->assertSame([], $clone->getParsedBody());
     }
 
     public function testWithParsedBodyNull()
@@ -1172,7 +1171,7 @@ class RequestTest extends TestCase
                    ->withBody($body)
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals('bar', $request->getParam('foo'));
+        $this->assertSame('bar', $request->getParam('foo'));
     }
 
     public function testGetParameterFromBodyWithBodyParemeterHelper()
@@ -1184,21 +1183,21 @@ class RequestTest extends TestCase
             ->withBody($body)
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
+        $this->assertSame('bar', $request->getParsedBodyParam('foo'));
     }
 
     public function testGetParameterFromQuery()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals('123', $request->getParam('abc'));
+        $this->assertSame('123', $request->getParam('abc'));
     }
 
     public function testGetParameterFromQueryWithQueryParemeterHelper()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals('123', $request->getQueryParam('abc'));
+        $this->assertSame('123', $request->getQueryParam('abc'));
     }
 
     public function testGetParameterFromBodyOverQuery()
@@ -1209,7 +1208,7 @@ class RequestTest extends TestCase
         $request = $this->requestFactory()
                    ->withBody($body)
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $this->assertEquals('xyz', $request->getParam('abc'));
+        $this->assertSame('xyz', $request->getParam('abc'));
     }
 
     public function testGetParameterWithDefaultFromBodyOverQuery()
@@ -1220,8 +1219,8 @@ class RequestTest extends TestCase
         $request = $this->requestFactory()
                    ->withBody($body)
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $this->assertEquals('xyz', $request->getParam('abc'));
-        $this->assertEquals('bar', $request->getParam('foo', 'bar'));
+        $this->assertSame('xyz', $request->getParam('abc'));
+        $this->assertSame('bar', $request->getParam('foo', 'bar'));
     }
 
     public function testGetParameters()
@@ -1233,7 +1232,7 @@ class RequestTest extends TestCase
                    ->withBody($body)
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals(['abc' => '123', 'foo' => 'bar'], $request->getParams());
+        $this->assertSame(['abc' => '123', 'foo' => 'bar'], $request->getParams());
     }
 
     public function testGetParametersWithBodyPriority()
@@ -1245,7 +1244,7 @@ class RequestTest extends TestCase
                    ->withBody($body)
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
+        $this->assertSame(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
     }
 
     public function testGetParametersWithSpecificKeys()
@@ -1257,7 +1256,7 @@ class RequestTest extends TestCase
             ->withBody($body)
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals(['abc' => 'xyz'], $request->getParams(['abc']));
+        $this->assertSame(['abc' => 'xyz'], $request->getParams(['abc']));
     }
 
     public function testGetParametersWithSpecificKeysAreMissingIfTheyDontExit()
@@ -1269,7 +1268,7 @@ class RequestTest extends TestCase
             ->withBody($body)
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals(['foo' => 'bar'], $request->getParams(['foo', 'bar']));
+        $this->assertSame(['foo' => 'bar'], $request->getParams(['foo', 'bar']));
     }
 
     public function testGetProtocolVersion()
@@ -1277,6 +1276,6 @@ class RequestTest extends TestCase
         $env = Environment::mock(['SERVER_PROTOCOL' => 'HTTP/1.0']);
         $request = Request::createFromEnvironment($env);
 
-        $this->assertEquals('1.0', $request->getProtocolVersion());
+        $this->assertSame('1.0', $request->getProtocolVersion());
     }
 }

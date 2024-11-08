@@ -22,12 +22,12 @@ class DeferredCallableTest extends TestCase
         $deferred = new DeferredCallable('CallableTest:toCall', $container);
         $deferred();
 
-        $this->assertEquals(1, CallableTest::$CalledCount);
+        $this->assertSame(1, CallableTest::$CalledCount);
     }
 
     public function testItBindsClosuresToContainer(): void
     {
-        $assertCalled = $this->getMockBuilder('StdClass')->setMethods(['foo'])->getMock();
+        $assertCalled = $this->getMockBuilder('StdClass')->getMock();
         $assertCalled
             ->expects($this->once())
             ->method('foo');
@@ -36,7 +36,7 @@ class DeferredCallableTest extends TestCase
 
         $test = $this;
 
-        $closure = function () use ($container, $test, $assertCalled) {
+        $closure = function () use ($container, $test, $assertCalled): void {
             $assertCalled->foo();
             $test->assertSame($container, $this);
         };
@@ -53,21 +53,21 @@ class DeferredCallableTest extends TestCase
         $bar = 'bar';
 
         $closure = function ($param) use ($test, $foo, $bar) {
-            $test->assertEquals($foo, $param);
+            $test->assertSame($foo, $param);
             return $bar;
         };
 
         $deferred = new DeferredCallable($closure, $container);
 
         $response = $deferred($foo);
-        $this->assertEquals($bar, $response);
+        $this->assertSame($bar, $response);
     }
 
     public function testGetCallable()
     {
         $container = new Container();
 
-        $closure = function () {
+        $closure = function (): void {
         };
 
         $deferred = new DeferredCallable($closure, $container);

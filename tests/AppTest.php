@@ -39,7 +39,7 @@ use Slim\Tests\Mocks\MockAction;
  *
  * @param string $value
  */
-function header($value, $replace = true)
+function header($value, $replace = true): void
 {
     \Slim\header($value, $replace);
 }
@@ -69,7 +69,7 @@ class AppTest extends TestCase
 
     public function testContainerInterfaceException(): void
     {
-        $this->expectException('InvalidArgumentException', 'Expected a ContainerInterface');
+        $this->expectException('InvalidArgumentException');
         $app = new App('');
     }
 
@@ -83,91 +83,91 @@ class AppTest extends TestCase
     public function testGetRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->get($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
     }
 
     public function testPostRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->post($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
     public function testPutRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->put($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
     }
 
     public function testPatchRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->patch($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('PATCH', 'methods', $route);
     }
 
     public function testDeleteRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->delete($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('DELETE', 'methods', $route);
     }
 
     public function testOptionsRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->options($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
     public function testAnyRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->any($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
@@ -179,13 +179,13 @@ class AppTest extends TestCase
     public function testMapRoute(): void
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function ($req, $res): void {
             // Do something
         };
         $app = new App();
         $route = $app->map(['GET', 'POST'], $path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
@@ -196,34 +196,34 @@ class AppTest extends TestCase
         $destination = '/bar';
 
         $app = new App();
-        $request = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')
+        $request = $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
         $route = $app->redirect($source, $destination, 301);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(\Slim\Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
 
         $response = $route->run($request, new Response());
-        $this->assertEquals(301, $response->getStatusCode());
-        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+        $this->assertSame(301, $response->getStatusCode());
+        $this->assertSame($destination, $response->getHeaderLine('Location'));
 
         $routeWithDefaultStatus = $app->redirect($source, $destination);
         $response = $routeWithDefaultStatus->run($request, new Response());
-        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertSame(302, $response->getStatusCode());
 
         $uri = $this->getMockBuilder(UriInterface::class)->getMock();
         $uri->expects($this->once())->method('__toString')->willReturn($destination);
 
         $routeToUri = $app->redirect($source, $uri);
         $response = $routeToUri->run($request, new Response());
-        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+        $this->assertSame($destination, $response->getHeaderLine('Location'));
     }
 
     public function testSegmentRouteThatDoesNotEndInASlash(): void
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
+        $app->get('/foo', function ($req, $res): void {
             // Do something
         });
         /** @var Router $router */
@@ -234,7 +234,7 @@ class AppTest extends TestCase
     public function testSegmentRouteThatEndsInASlash(): void
     {
         $app = new App();
-        $app->get('/foo/', function ($req, $res) {
+        $app->get('/foo/', function ($req, $res): void {
             // Do something
         });
         /** @var Router $router */
@@ -245,7 +245,7 @@ class AppTest extends TestCase
     public function testSegmentRouteThatDoesNotStartWithASlash(): void
     {
         $app = new App();
-        $app->get('foo', function ($req, $res) {
+        $app->get('foo', function ($req, $res): void {
             // Do something
         });
         /** @var Router $router */
@@ -256,7 +256,7 @@ class AppTest extends TestCase
     public function testSingleSlashRoute(): void
     {
         $app = new App();
-        $app->get('/', function ($req, $res) {
+        $app->get('/', function ($req, $res): void {
             // Do something
         });
         /** @var Router $router */
@@ -267,7 +267,7 @@ class AppTest extends TestCase
     public function testEmptyRoute(): void
     {
         $app = new App();
-        $app->get('', function ($req, $res) {
+        $app->get('', function ($req, $res): void {
             // Do something
         });
         /** @var Router $router */
@@ -278,8 +278,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->get('/bar', function ($req, $res): void {
                 // Do something
             });
         });
@@ -291,8 +291,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSegmentRouteThatEndsInASlash(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->get('/bar/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -304,8 +304,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->get('/', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->get('/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -317,8 +317,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function () {
-            $this->get('', function ($req, $res) {
+        $app->group('/foo', function (): void {
+            $this->get('', function ($req, $res): void {
                 // Do something
             });
         });
@@ -330,9 +330,9 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -345,9 +345,9 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithAnEmptyRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -360,9 +360,9 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -375,9 +375,9 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -390,9 +390,9 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -405,9 +405,9 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -420,9 +420,9 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -435,9 +435,9 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('/foo', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('/foo', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -450,8 +450,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->get('/bar', function ($req, $res): void {
                 // Do something
             });
         });
@@ -463,8 +463,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->get('/bar/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -476,8 +476,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->get('/', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->get('/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -489,8 +489,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->get('', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->get('', function ($req, $res): void {
                 // Do something
             });
         });
@@ -502,9 +502,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -517,9 +517,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -532,9 +532,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -547,9 +547,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -562,9 +562,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -577,9 +577,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -592,9 +592,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -607,9 +607,9 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('/', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('/', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -622,8 +622,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->get('/bar', function ($req, $res): void {
                 // Do something
             });
         });
@@ -635,8 +635,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSegmentRouteThatEndsInASlash(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->get('/bar/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -648,8 +648,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->get('/', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->get('/', function ($req, $res): void {
                 // Do something
             });
         });
@@ -661,8 +661,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->get('', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->get('', function ($req, $res): void {
                 // Do something
             });
         });
@@ -674,9 +674,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -689,9 +689,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -704,9 +704,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -719,9 +719,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/bar/', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -734,9 +734,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -749,9 +749,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('/', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -764,9 +764,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRoute(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('/bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -779,9 +779,9 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash(): void
     {
         $app = new App();
-        $app->group('', function ($app) {
-            $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+        $app->group('', function ($app): void {
+            $app->group('', function ($app): void {
+                $app->get('bar', function ($req, $res): void {
                     // Do something
                 });
             });
@@ -802,8 +802,8 @@ class AppTest extends TestCase
         $app->add($mw);
 
         $app->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertEquals($app, $bottom);
@@ -821,8 +821,8 @@ class AppTest extends TestCase
         $app->add($mw);
 
         $app->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertSame($called, 1);
@@ -832,9 +832,7 @@ class AppTest extends TestCase
     {
         $app = new App();
 
-        $app->get('/', function ($req, $res) {
-            return $res->write('Center');
-        })->add(function ($req, $res, $next) {
+        $app->get('/', fn($req, $res) => $res->write('Center'))->add(function ($req, $res, $next) {
             $res->write('In1');
             $res = $next($req, $res);
             $res->write('Out1');
@@ -865,17 +863,15 @@ class AppTest extends TestCase
         // Invoke app
         $app($req, $res);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertSame('In2In1CenterOut1Out2', (string)$res->getBody());
     }
 
     public function testAddMiddlewareOnRouteGroup(): void
     {
         $app = new App();
 
-        $app->group('/foo', function ($app) {
-            $app->get('/', function ($req, $res) {
-                return $res->write('Center');
-            });
+        $app->group('/foo', function ($app): void {
+            $app->get('/', fn($req, $res) => $res->write('Center'));
         })->add(function ($req, $res, $next) {
             $res->write('In1');
             $res = $next($req, $res);
@@ -907,18 +903,16 @@ class AppTest extends TestCase
         // Invoke app
         $app($req, $res);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertSame('In2In1CenterOut1Out2', (string)$res->getBody());
     }
 
     public function testAddMiddlewareOnTwoRouteGroup(): void
     {
         $app = new App();
 
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
-                });
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/', fn($req, $res) => $res->write('Center'));
             })->add(function ($req, $res, $next) {
                 $res->write('In2');
                 $res = $next($req, $res);
@@ -951,18 +945,16 @@ class AppTest extends TestCase
         // Invoke app
         $app($req, $res);
 
-        $this->assertEquals('In1In2CenterOut2Out1', (string)$res->getBody());
+        $this->assertSame('In1In2CenterOut2Out1', (string)$res->getBody());
     }
 
     public function testAddMiddlewareOnRouteAndOnTwoRouteGroup(): void
     {
         $app = new App();
 
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
-                })->add(function ($req, $res, $next) {
+        $app->group('/foo', function ($app): void {
+            $app->group('/baz', function ($app): void {
+                $app->get('/', fn($req, $res) => $res->write('Center'))->add(function ($req, $res, $next) {
                     $res->write('In3');
                     $res = $next($req, $res);
                     $res->write('Out3');
@@ -1001,7 +993,7 @@ class AppTest extends TestCase
         // Invoke app
         $app($req, $res);
 
-        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
+        $this->assertSame('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
     }
 
     public function testInvokeReturnMethodNotAllowed(): void
@@ -1030,9 +1022,9 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals(405, (string)$resOut->getStatusCode());
-        $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame(405, (string)$resOut->getStatusCode());
+        $this->assertSame(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains(
             '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
             (string)$resOut->getBody()
@@ -1040,7 +1032,7 @@ class AppTest extends TestCase
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notAllowedHandler']);
-        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
+        $this->setExpectedException(\Slim\Exception\MethodNotAllowedException::class);
         $app($req, $res);
     }
 
@@ -1070,16 +1062,14 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello', (string)$res->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArgument(): void
     {
         $app = new App();
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute']}");
-        })->setArgument('attribute', 'world!');
+        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute']}"))->setArgument('attribute', 'world!');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1098,16 +1088,14 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello world!', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello world!', (string)$res->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments(): void
     {
         $app = new App();
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute1']} {$args['attribute2']}");
-        })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute1']} {$args['attribute2']}"))->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1126,16 +1114,14 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there world!', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello there world!', (string)$res->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameter(): void
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['name']}");
-        });
+        $app->get('/foo/{name}', fn($req, $res, $args) => $res->write("Hello {$args['name']}"));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1154,21 +1140,17 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello test!', (string)$res->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy(): void
     {
         $c = new Container();
-        $c['foundHandler'] = function ($c) {
-            return new RequestResponseArgs();
-        };
+        $c['foundHandler'] = fn($c) => new RequestResponseArgs();
 
         $app = new App($c);
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write("Hello {$name}");
-        });
+        $app->get('/foo/{name}', fn($req, $res, $name) => $res->write("Hello {$name}"));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1187,16 +1169,14 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello test!', (string)$res->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument(): void
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['extra']} {$args['name']}");
-        })->setArguments(['extra' => 'there', 'name' => 'world!']);
+        $app->get('/foo/{name}', fn($req, $res, $args) => $res->write("Hello {$args['extra']} {$args['name']}"))->setArguments(['extra' => 'there', 'name' => 'world!']);
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1215,8 +1195,8 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there test!', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello there test!', (string)$res->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute(): void
@@ -1245,12 +1225,12 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notFoundHandler']);
-        $this->setExpectedException('Slim\Exception\NotFoundException');
+        $this->setExpectedException(\Slim\Exception\NotFoundException::class);
         $app($req, $res);
     }
 
@@ -1270,7 +1250,7 @@ class AppTest extends TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
-        $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
+        $mock = $this->getMockBuilder('StdClass')->getMock();
 
         $app = new App();
         $container = $app->getContainer();
@@ -1287,8 +1267,8 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello', (string)$res->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('Hello', (string)$res->getBody());
     }
 
     public function testInvokeWithPimpleUndefinedCallable(): void
@@ -1311,9 +1291,7 @@ class AppTest extends TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
-            return $mock;
-        };
+        $container['foo'] = fn() => $mock;
 
         $app->get('/foo', 'foo:bar');
 
@@ -1343,16 +1321,14 @@ class AppTest extends TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
-            return $mock;
-        };
+        $container['foo'] = fn() => $mock;
 
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 
@@ -1388,15 +1364,13 @@ class AppTest extends TestCase
         // Invoke app
         $app($req, $res);
 
-        $this->assertEquals('foo', (string)$res->getBody());
+        $this->assertSame('foo', (string)$res->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments(): void
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write($req->getAttribute('one') . $args['name']);
-        });
+        $app->get('/foo/{name}', fn($req, $res, $args) => $res->write($req->getAttribute('one') . $args['name']));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1416,20 +1390,16 @@ class AppTest extends TestCase
 
         // Invoke app
         $resOut = $app($req, $res);
-        $this->assertEquals('1rob', (string)$resOut->getBody());
+        $this->assertSame('1rob', (string)$resOut->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg(): void
     {
         $c = new Container();
-        $c['foundHandler'] = function () {
-            return new RequestResponseArgs();
-        };
+        $c['foundHandler'] = fn() => new RequestResponseArgs();
 
         $app = new App($c);
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write($req->getAttribute('one') . $name);
-        });
+        $app->get('/foo/{name}', fn($req, $res, $name) => $res->write($req->getAttribute('one') . $name));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1449,7 +1419,7 @@ class AppTest extends TestCase
 
         // Invoke app
         $resOut = $app($req, $res);
-        $this->assertEquals('1rob', (string)$resOut->getBody());
+        $this->assertSame('1rob', (string)$resOut->getBody());
     }
 
     public function testInvokeSubRequest(): void
@@ -1463,8 +1433,8 @@ class AppTest extends TestCase
 
         $newResponse = $subReq = $app->subRequest('GET', '/foo');
 
-        $this->assertEquals('foo', (string)$subReq->getBody());
-        $this->assertEquals(200, $newResponse->getStatusCode());
+        $this->assertSame('foo', (string)$subReq->getBody());
+        $this->assertSame(200, $newResponse->getStatusCode());
     }
 
     public function testInvokeSubRequestWithQuery(): void
@@ -1478,7 +1448,7 @@ class AppTest extends TestCase
 
         $subReq = $app->subRequest('GET', '/foo', 'bar=bar');
 
-        $this->assertEquals('foo bar', (string)$subReq->getBody());
+        $this->assertSame('foo bar', (string)$subReq->getBody());
     }
 
     public function testInvokeSubRequestUsesResponseObject(): void
@@ -1493,8 +1463,8 @@ class AppTest extends TestCase
         $resp = new Response(201);
         $newResponse = $subReq = $app->subRequest('GET', '/foo', 'bar=bar', [], [], '', $resp);
 
-        $this->assertEquals('foo bar', (string)$subReq->getBody());
-        $this->assertEquals(201, $newResponse->getStatusCode());
+        $this->assertSame('foo bar', (string)$subReq->getBody());
+        $this->assertSame(201, $newResponse->getStatusCode());
     }
 
     // TODO: Test finalize()
@@ -1508,7 +1478,7 @@ class AppTest extends TestCase
         $app->run();
         $resOut = ob_get_clean();
 
-        $this->assertEquals('bar', (string)$resOut);
+        $this->assertSame('bar', (string)$resOut);
     }
 
     public function testRunReturnsEmptyResponseBodyWithHeadRequestMethod(): void
@@ -1519,7 +1489,7 @@ class AppTest extends TestCase
         $app->run();
         $resOut = ob_get_clean();
 
-        $this->assertEquals('', (string)$resOut);
+        $this->assertSame('', (string)$resOut);
     }
 
     public function testRunReturnsEmptyResponseBodyWithGetRequestMethodInSilentMode(): void
@@ -1527,7 +1497,7 @@ class AppTest extends TestCase
         $app = $this->getAppForTestingRunMethod();
         $response = $app->run(true);
 
-        $this->assertEquals('bar', $response->getBody()->__toString());
+        $this->assertSame('bar', $response->getBody()->__toString());
     }
 
     public function testRunReturnsEmptyResponseBodyWithHeadRequestMethodInSilentMode(): void
@@ -1535,7 +1505,7 @@ class AppTest extends TestCase
         $app = $this->getAppForTestingRunMethod('HEAD');
         $response = $app->run(true);
 
-        $this->assertEquals('', $response->getBody()->__toString());
+        $this->assertSame('', $response->getBody()->__toString());
     }
 
     private function getAppForTestingRunMethod($method = 'GET')
@@ -1595,7 +1565,7 @@ class AppTest extends TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->expectOutputString('Hello');
     }
 
@@ -1627,7 +1597,7 @@ class AppTest extends TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->expectOutputString('Hello');
     }
 
@@ -1658,9 +1628,9 @@ class AppTest extends TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals([], $resOut->getHeader('Content-Type'));
-        $this->assertEquals([], $resOut->getHeader('Content-Length'));
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame([], $resOut->getHeader('Content-Type'));
+        $this->assertSame([], $resOut->getHeader('Content-Length'));
         $this->expectOutputString('');
     }
 
@@ -1726,7 +1696,7 @@ class AppTest extends TestCase
             $resOut = $app($req, $res);
             $app->respond($resOut);
 
-            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+            $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
             $this->expectOutputString('Hello');
         } else {
             $this->assertTrue(true);
@@ -1738,8 +1708,7 @@ class AppTest extends TestCase
         $app = new App();
         $body_stream = fopen('php://temp', 'r+');
         $response = new Response();
-        $body = $this->getMockBuilder("\Slim\Http\Body")
-            ->setMethods(["getSize"])
+        $body = $this->getMockBuilder(\Slim\Http\Body::class)
             ->setConstructorArgs([$body_stream])
             ->getMock();
         fwrite($body_stream, "Hello");
@@ -1780,19 +1749,16 @@ class AppTest extends TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
     }
 
     public function testResponseReplacesPreviouslySetHeaders(): void
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            return $res
-                ->withHeader('X-Foo', 'baz1')
-                ->withAddedHeader('X-Foo', 'baz2')
-                ;
-        });
+        $app->get('/foo', fn($req, $res) => $res
+            ->withHeader('X-Foo', 'baz1')
+            ->withAddedHeader('X-Foo', 'baz2'));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1824,12 +1790,9 @@ class AppTest extends TestCase
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders(): void
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            return $res
-                ->withHeader('Set-Cookie', 'foo=bar')
-                ->withAddedHeader('Set-Cookie', 'bar=baz')
-                ;
-        });
+        $app->get('/foo', fn($req, $res) => $res
+            ->withHeader('Set-Cookie', 'foo=bar')
+            ->withAddedHeader('Set-Cookie', 'bar=baz'));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1878,19 +1841,17 @@ class AppTest extends TestCase
         $app->getContainer()['request'] = $req;
         $app->getContainer()['response'] = $res;
 
-        $mw = function ($req, $res, $next) {
+        $mw = function ($req, $res, $next): void {
             throw new Exception('middleware exception');
         };
 
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
+        $app->get('/foo', fn($req, $res) => $res);
 
         $resOut = $app->run(true);
 
-        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->assertSame(500, $resOut->getStatusCode());
         $this->assertDoesNotMatchRegularExpression('/.*middleware exception.*/', (string)$resOut);
     }
 
@@ -1917,19 +1878,17 @@ class AppTest extends TestCase
         $app->getContainer()['request'] = $req;
         $app->getContainer()['response'] = $res;
 
-        $mw = function ($req, $res, $next) {
+        $mw = function ($req, $res, $next): void {
             dumpFonction();
         };
 
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
+        $app->get('/foo', fn($req, $res) => $res);
 
         $resOut = $app->run(true);
 
-        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->assertSame(500, $resOut->getStatusCode());
         $this->assertDoesNotMatchRegularExpression('/.*middleware exception.*/', (string)$resOut);
     }
 
@@ -1971,10 +1930,8 @@ class AppTest extends TestCase
         $container = $app->getContainer();
         unset($container['errorHandler']);
 
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new Exception();
         });
         $res = $app->run(true);
@@ -1983,18 +1940,16 @@ class AppTest extends TestCase
     public function testRunSlimException(): void
     {
         $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             $res->write("Failed");
             throw new SlimException($req, $res);
         });
         $res = $app->run(true);
 
         $res->getBody()->rewind();
-        $this->assertEquals(200, $res->getStatusCode());
-        $this->assertEquals("Failed", $res->getBody()->getContents());
+        $this->assertSame(200, $res->getStatusCode());
+        $this->assertSame("Failed", $res->getBody()->getContents());
     }
 
     /**
@@ -2003,10 +1958,8 @@ class AppTest extends TestCase
     public function testRunThrowable(): void
     {
         $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new Error('Failed');
         });
 
@@ -2016,21 +1969,19 @@ class AppTest extends TestCase
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
+        $this->assertSame(0, strpos((string)$res->getBody(), '<html>'));
     }
 
     public function testRunNotFound(): void
     {
         $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new NotFoundException($req, $res);
         });
         $res = $app->run(true);
 
-        $this->assertEquals(404, $res->getStatusCode());
+        $this->assertSame(404, $res->getStatusCode());
     }
 
     /**
@@ -2042,10 +1993,8 @@ class AppTest extends TestCase
         $container = $app->getContainer();
         unset($container['notFoundHandler']);
 
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new NotFoundException($req, $res);
         });
         $res = $app->run(true);
@@ -2055,15 +2004,13 @@ class AppTest extends TestCase
     public function testRunNotAllowed(): void
     {
         $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
         $res = $app->run(true);
 
-        $this->assertEquals(405, $res->getStatusCode());
+        $this->assertSame(405, $res->getStatusCode());
     }
 
     /**
@@ -2075,10 +2022,8 @@ class AppTest extends TestCase
         $container = $app->getContainer();
         unset($container['notAllowedHandler']);
 
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
+        $app->get('/foo', fn($req, $res, $args) => $res);
+        $app->add(function ($req, $res, $args): void {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
         $res = $app->run(true);
@@ -2088,15 +2033,13 @@ class AppTest extends TestCase
     {
         $app = $this->appFactory();
 
-        $app->get('/foo', function ($req, $res) {
-            return $res->write("Test");
-        });
+        $app->get('/foo', fn($req, $res) => $res->write("Test"));
 
         $app->getContainer()['settings']['determineRouteBeforeAppMiddleware'] = true;
 
         $resOut = $app->run(true);
         $resOut->getBody()->rewind();
-        $this->assertEquals("Test", $resOut->getBody()->getContents());
+        $this->assertSame("Test", $resOut->getBody()->getContents());
     }
 
     public function testExceptionErrorHandlerDisplaysErrorDetails(): void
@@ -2123,25 +2066,23 @@ class AppTest extends TestCase
         $app->getContainer()['request'] = $req;
         $app->getContainer()['response'] = $res;
 
-        $mw = function ($req, $res, $next) {
+        $mw = function ($req, $res, $next): void {
             throw new RuntimeException('middleware exception');
         };
 
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
+        $app->get('/foo', fn($req, $res) => $res);
 
         $resOut = $app->run(true);
 
-        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->assertSame(500, $resOut->getStatusCode());
         $this->assertMatchesRegularExpression('/.*middleware exception.*/', (string)$resOut);
     }
 
     public function testFinalize(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'finalize');
+        $method = new ReflectionMethod(\Slim\App::class, 'finalize');
         $method->setAccessible(true);
 
         $response = new Response();
@@ -2150,12 +2091,12 @@ class AppTest extends TestCase
         $response = $method->invoke(new App(), $response);
 
         $this->assertTrue($response->hasHeader('Content-Length'));
-        $this->assertEquals('3', $response->getHeaderLine('Content-Length'));
+        $this->assertSame('3', $response->getHeaderLine('Content-Length'));
     }
 
     public function testFinalizeWithoutBody(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'finalize');
+        $method = new ReflectionMethod(\Slim\App::class, 'finalize');
         $method->setAccessible(true);
 
         $response = $method->invoke(new App(), new Response(304));
@@ -2167,11 +2108,7 @@ class AppTest extends TestCase
     public function testCallingAContainerCallable(): void
     {
         $settings = [
-            'foo' => function ($c) {
-                return function ($a) {
-                    return $a;
-                };
-            }
+            'foo' => fn($c) => fn($a) => $a
         ];
         $app = new App($settings);
 
@@ -2196,9 +2133,7 @@ class AppTest extends TestCase
         $this->expectException(BadMethodCallException::class);
 
         $settings = [
-            'foo' => function ($c) {
-                return null;
-            }
+            'foo' => fn($c) => null
         ];
         $app = new App($settings);
         $app->foo('bar');
@@ -2229,7 +2164,7 @@ class AppTest extends TestCase
 
     public function testOmittingContentLength(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'finalize');
+        $method = new ReflectionMethod(\Slim\App::class, 'finalize');
         $method->setAccessible(true);
 
         $response = new Response();
@@ -2254,7 +2189,7 @@ class AppTest extends TestCase
 
         $this->expectOutputString('test'); // needed to avoid risky test warning
         echo "test";
-        $method = new ReflectionMethod('Slim\App', 'finalize');
+        $method = new ReflectionMethod(\Slim\App::class, 'finalize');
         $method->setAccessible(true);
 
         $response = new Response();
@@ -2275,13 +2210,13 @@ class AppTest extends TestCase
         $resOut = $app->run(true);
 
         $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(404, $resOut->getStatusCode());
+        $this->assertSame(404, $resOut->getStatusCode());
     }
 
     public function testUnsupportedMethodWithRoute(): void
     {
         $app = new App();
-        $app->get('/', function () {
+        $app->get('/', function (): void {
             // stubbed action to give us a route at /
         });
         $c = $app->getContainer();
@@ -2290,7 +2225,7 @@ class AppTest extends TestCase
         $resOut = $app->run(true);
 
         $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(405, $resOut->getStatusCode());
+        $this->assertSame(405, $resOut->getStatusCode());
     }
 
     public function testContainerSetToRoute(): void
@@ -2313,9 +2248,7 @@ class AppTest extends TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
-            return $mock;
-        };
+        $container['foo'] = fn() => $mock;
 
         /** @var $router Router */
         $router = $container['router'];
@@ -2325,13 +2258,13 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 
     public function testIsEmptyResponseWithEmptyMethod(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method = new ReflectionMethod(\Slim\App::class, 'isEmptyResponse');
         $method->setAccessible(true);
 
         $response = new Response();
@@ -2343,7 +2276,7 @@ class AppTest extends TestCase
 
     public function testIsEmptyResponseWithoutEmptyMethod(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method = new ReflectionMethod(\Slim\App::class, 'isEmptyResponse');
         $method->setAccessible(true);
 
         /** @var Response $response */
@@ -2357,7 +2290,7 @@ class AppTest extends TestCase
 
     public function testIsHeadRequestWithGetRequest(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method = new ReflectionMethod(\Slim\App::class, 'isHeadRequest');
         $method->setAccessible(true);
 
         /** @var Request $request */
@@ -2371,7 +2304,7 @@ class AppTest extends TestCase
 
     public function testIsHeadRequestWithHeadRequest(): void
     {
-        $method = new ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method = new ReflectionMethod(\Slim\App::class, 'isHeadRequest');
         $method->setAccessible(true);
 
         /** @var Request $request */
@@ -2386,21 +2319,21 @@ class AppTest extends TestCase
     public function testHandlePhpError(): void
     {
         $this->skipIfPhp70();
-        $method = new ReflectionMethod('Slim\App', 'handlePhpError');
+        $method = new ReflectionMethod(\Slim\App::class, 'handlePhpError');
         $method->setAccessible(true);
 
         $throwable = $this->getMock(
             '\Throwable',
             ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
         );
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
         $res = new Response();
 
         $res = $method->invoke(new App(), $throwable, $req, $res);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
+        $this->assertSame(0, strpos((string)$res->getBody(), '<html>'));
     }
 
     public function testExceptionOutputBufferingOff(): void
@@ -2408,7 +2341,7 @@ class AppTest extends TestCase
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = false;
 
-        $app->get("/foo", function ($request, $response, $args) {
+        $app->get("/foo", function ($request, $response, $args): void {
             $test = [1,2,3];
             var_dump($test);
             throw new Exception("oops");
@@ -2428,7 +2361,7 @@ end;
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
         $strPos = strpos($output, $unExpectedOutput);
-        $this->assertFalse($strPos);
+        $this->assertStringNotContainsString($strPos);
     }
 
     public function testExceptionOutputBufferingAppend(): void
@@ -2440,7 +2373,7 @@ end;
 
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = 'append';
-        $app->get("/foo", function ($request, $response, $args) {
+        $app->get("/foo", function ($request, $response, $args): void {
             echo 'output buffer test';
             throw new Exception("oops");
         });
@@ -2459,7 +2392,7 @@ end;
 
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = 'prepend';
-        $app->get("/foo", function ($request, $response, $args) {
+        $app->get("/foo", function ($request, $response, $args): void {
             echo 'output buffer test';
             throw new Exception("oops");
         });
@@ -2472,9 +2405,7 @@ end;
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs(): void
     {
         $app = new App();
-        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
-        });
+        $app->get('/foo[/{bar}]', fn($req, $res, $args) => $res->write(count($args)));
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2493,8 +2424,8 @@ end;
         // Invoke process with optional arg
         $resOut = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('1', (string)$resOut->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('1', (string)$resOut->getBody());
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2513,16 +2444,14 @@ end;
         // Invoke process without optional arg
         $resOut2 = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
-        $this->assertEquals('0', (string)$resOut2->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut2);
+        $this->assertSame('0', (string)$resOut2->getBody());
     }
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs(): void
     {
         $app = new App();
-        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
-        })->setArgument('baz', 'quux');
+        $app->get('/foo[/{bar}]', fn($req, $res, $args) => $res->write(count($args)))->setArgument('baz', 'quux');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2541,8 +2470,8 @@ end;
         // Invoke process without optional arg
         $resOut = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('2', (string)$resOut->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('2', (string)$resOut->getBody());
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2561,16 +2490,14 @@ end;
         // Invoke process with optional arg
         $resOut2 = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
-        $this->assertEquals('1', (string)$resOut2->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut2);
+        $this->assertSame('1', (string)$resOut2->getBody());
     }
 
     public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument(): void
     {
         $app = new App();
-        $route = $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
-        })->setArgument('baz', 'quux');
+        $route = $app->get('/foo[/{bar}]', fn($req, $res, $args) => $res->write(count($args)))->setArgument('baz', 'quux');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2589,8 +2516,8 @@ end;
         // Invoke process with optional arg
         $resOut = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('2', (string)$resOut->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut);
+        $this->assertSame('2', (string)$resOut->getBody());
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2612,8 +2539,8 @@ end;
         // Invoke process with optional arg
         $resOut2 = $app->process($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
-        $this->assertEquals('3', (string)$resOut2->getBody());
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $resOut2);
+        $this->assertSame('3', (string)$resOut2->getBody());
     }
 
     protected function skipIfPhp70(): void

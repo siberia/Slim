@@ -48,7 +48,7 @@ function headers_sent()
  * @param bool     $replace
  * @param int|null $statusCode
  */
-function header($string, $replace = true, $statusCode = null)
+function header($string, $replace = true, $statusCode = null): void
 {
     HeaderStack::push(
         [

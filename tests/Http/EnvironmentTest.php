@@ -50,10 +50,10 @@ class EnvironmentTest extends TestCase
             'REQUEST_URI' => '/foo/bar?abc=123',
         ]);
 
-        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
-        $this->assertEquals('/foo/bar/index.php', $env->get('SCRIPT_NAME'));
-        $this->assertEquals('/foo/bar?abc=123', $env->get('REQUEST_URI'));
-        $this->assertEquals('localhost', $env->get('HTTP_HOST'));
+        $this->assertInstanceOf(\Slim\Interfaces\CollectionInterface::class, $env);
+        $this->assertSame('/foo/bar/index.php', $env->get('SCRIPT_NAME'));
+        $this->assertSame('/foo/bar?abc=123', $env->get('REQUEST_URI'));
+        $this->assertSame('localhost', $env->get('HTTP_HOST'));
     }
 
     /**
@@ -65,9 +65,9 @@ class EnvironmentTest extends TestCase
             'HTTPS' => 'on'
         ]);
 
-        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
-        $this->assertEquals('on', $env->get('HTTPS'));
-        $this->assertEquals(443, $env->get('SERVER_PORT'));
+        $this->assertInstanceOf(\Slim\Interfaces\CollectionInterface::class, $env);
+        $this->assertSame('on', $env->get('HTTPS'));
+        $this->assertSame(443, $env->get('SERVER_PORT'));
     }
 
     /**
@@ -79,8 +79,8 @@ class EnvironmentTest extends TestCase
             'REQUEST_SCHEME' => 'https'
         ]);
 
-        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
-        $this->assertEquals('https', $env->get('REQUEST_SCHEME'));
-        $this->assertEquals(443, $env->get('SERVER_PORT'));
+        $this->assertInstanceOf(\Slim\Interfaces\CollectionInterface::class, $env);
+        $this->assertSame('https', $env->get('REQUEST_SCHEME'));
+        $this->assertSame(443, $env->get('SERVER_PORT'));
     }
 }

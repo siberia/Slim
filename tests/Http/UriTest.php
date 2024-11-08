@@ -32,7 +32,7 @@ class UriTest extends TestCase
 
     public function testGetScheme()
     {
-        $this->assertEquals('https', $this->uriFactory()->getScheme());
+        $this->assertSame('https', $this->uriFactory()->getScheme());
     }
 
     public function testWithScheme()
@@ -76,7 +76,7 @@ class UriTest extends TestCase
 
     public function testGetAuthorityWithUsernameAndPassword()
     {
-        $this->assertEquals('josh:sekrit@example.com', $this->uriFactory()->getAuthority());
+        $this->assertSame('josh:sekrit@example.com', $this->uriFactory()->getAuthority());
     }
 
     public function testGetAuthorityWithUsername()
@@ -91,7 +91,7 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('josh@example.com', $uri->getAuthority());
+        $this->assertSame('josh@example.com', $uri->getAuthority());
     }
 
     public function testGetAuthority()
@@ -106,7 +106,7 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('example.com', $uri->getAuthority());
+        $this->assertSame('example.com', $uri->getAuthority());
     }
 
     public function testGetAuthorityWithNonStandardPort()
@@ -121,7 +121,7 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('example.com:400', $uri->getAuthority());
+        $this->assertSame('example.com:400', $uri->getAuthority());
     }
 
     public function testGetUserInfoWithUsernameAndPassword()
@@ -136,7 +136,7 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
+        $this->assertSame('josh:sekrit', $uri->getUserInfo());
     }
 
     public function testGetUserInfoWithUsername()
@@ -151,7 +151,7 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('josh', $uri->getUserInfo());
+        $this->assertSame('josh', $uri->getUserInfo());
     }
 
     public function testGetUserInfoNone()
@@ -166,14 +166,14 @@ class UriTest extends TestCase
         $fragment = 'section3';
         $uri = new Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
-        $this->assertEquals('', $uri->getUserInfo());
+        $this->assertSame('', $uri->getUserInfo());
     }
 
     public function testGetUserInfoWithUsernameAndPasswordEncodesCorrectly()
     {
         $uri = Uri::createFromString('https://bob%40example.com:pass%3Aword@example.com:443/foo/bar?abc=123#section3');
 
-        $this->assertEquals('bob%40example.com:pass%3Aword', $uri->getUserInfo());
+        $this->assertSame('bob%40example.com:pass%3Aword', $uri->getUserInfo());
     }
 
     public function testWithUserInfo()
@@ -212,7 +212,7 @@ class UriTest extends TestCase
 
     public function testGetHost()
     {
-        $this->assertEquals('example.com', $this->uriFactory()->getHost());
+        $this->assertSame('example.com', $this->uriFactory()->getHost());
     }
 
     public function testWithHost()
@@ -226,7 +226,7 @@ class UriTest extends TestCase
     {
         $uri = new Uri('https', 'www.example.com', 4000);
 
-        $this->assertEquals(4000, $uri->getPort());
+        $this->assertSame(4000, $uri->getPort());
     }
 
     public function testGetPortWithSchemeAndDefaultPort()
@@ -284,7 +284,7 @@ class UriTest extends TestCase
 
     public function testGetBasePathNone()
     {
-        $this->assertEquals('', $this->uriFactory()->getBasePath());
+        $this->assertSame('', $this->uriFactory()->getBasePath());
     }
 
     public function testWithBasePath()
@@ -319,7 +319,7 @@ class UriTest extends TestCase
 
     public function testGetPath()
     {
-        $this->assertEquals('/foo/bar', $this->uriFactory()->getPath());
+        $this->assertSame('/foo/bar', $this->uriFactory()->getPath());
     }
 
     public function testWithPath()
@@ -368,7 +368,7 @@ class UriTest extends TestCase
 
     public function testGetQuery()
     {
-        $this->assertEquals('abc=123', $this->uriFactory()->getQuery());
+        $this->assertSame('abc=123', $this->uriFactory()->getQuery());
     }
 
     public function testWithQuery()
@@ -410,7 +410,7 @@ class UriTest extends TestCase
 
     public function testGetFragment()
     {
-        $this->assertEquals('section3', $this->uriFactory()->getFragment());
+        $this->assertSame('section3', $this->uriFactory()->getFragment());
     }
 
     public function testWithFragment()
@@ -447,16 +447,16 @@ class UriTest extends TestCase
     {
         $uri = $this->uriFactory();
 
-        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
+        $this->assertSame('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
 
         $uri = $uri->withPath('bar');
-        $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
+        $this->assertSame('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
 
         $uri = $uri->withBasePath('foo/');
-        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
+        $this->assertSame('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
 
         $uri = $uri->withPath('/bar');
-        $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
+        $this->assertSame('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
 
         // ensure that a Uri with just a base path correctly converts to a string
         // (This occurs via createFromEnvironment when index.php is in a subdirectory)
@@ -466,18 +466,18 @@ class UriTest extends TestCase
             'HTTP_HOST' => 'example.com',
         ]);
         $uri = Uri::createFromEnvironment($environment);
-        $this->assertEquals('http://example.com/foo/', (string) $uri);
+        $this->assertSame('http://example.com/foo/', (string) $uri);
     }
 
     public function testCreateFromString()
     {
         $uri = Uri::createFromString('https://example.com:8080/foo/bar?abc=123');
 
-        $this->assertEquals('https', $uri->getScheme());
-        $this->assertEquals('example.com', $uri->getHost());
-        $this->assertEquals('8080', $uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertSame('https', $uri->getScheme());
+        $this->assertSame('example.com', $uri->getHost());
+        $this->assertSame('8080', $uri->getPort());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
     }
 
     /**
@@ -503,12 +503,12 @@ class UriTest extends TestCase
 
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
-        $this->assertEquals('example.com', $uri->getHost());
-        $this->assertEquals('8080', $uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
-        $this->assertEquals('', $uri->getFragment());
+        $this->assertSame('josh:sekrit', $uri->getUserInfo());
+        $this->assertSame('example.com', $uri->getHost());
+        $this->assertSame('8080', $uri->getPort());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
+        $this->assertSame('', $uri->getFragment());
     }
 
     public function testCreateFromEnvironmentSetsDefaultPortWhenHostHeaderDoesntHaveAPort()
@@ -523,13 +523,13 @@ class UriTest extends TestCase
 
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('example.com', $uri->getHost());
+        $this->assertSame('example.com', $uri->getHost());
         $this->assertEquals(null, $uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
-        $this->assertEquals('', $uri->getFragment());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
+        $this->assertSame('', $uri->getFragment());
 
-        $this->assertEquals('https://example.com/foo/bar?abc=123', (string)$uri);
+        $this->assertSame('https://example.com/foo/bar?abc=123', (string)$uri);
     }
 
     public function testCreateEnvironmentWithIPv6HostNoPort()
@@ -546,12 +546,12 @@ class UriTest extends TestCase
 
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
-        $this->assertEquals('[2001:db8::1]', $uri->getHost());
+        $this->assertSame('josh:sekrit', $uri->getUserInfo());
+        $this->assertSame('[2001:db8::1]', $uri->getHost());
         $this->assertNull($uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
-        $this->assertEquals('', $uri->getFragment());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
+        $this->assertSame('', $uri->getFragment());
     }
 
     public function testCreateEnvironmentWithIPv6HostWithPort()
@@ -568,17 +568,15 @@ class UriTest extends TestCase
 
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
-        $this->assertEquals('[2001:db8::1]', $uri->getHost());
-        $this->assertEquals('8080', $uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
-        $this->assertEquals('', $uri->getFragment());
+        $this->assertSame('josh:sekrit', $uri->getUserInfo());
+        $this->assertSame('[2001:db8::1]', $uri->getHost());
+        $this->assertSame('8080', $uri->getPort());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
+        $this->assertSame('', $uri->getFragment());
     }
 
-    /**
-     * @group one
-     */
+    #[\PHPUnit\Framework\Attributes\Group('one')]
     public function testCreateEnvironmentWithNoHostHeader()
     {
         $environment = Environment::mock([
@@ -595,12 +593,12 @@ class UriTest extends TestCase
 
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
-        $this->assertEquals('[2001:db8::1]', $uri->getHost());
-        $this->assertEquals('8080', $uri->getPort());
-        $this->assertEquals('/foo/bar', $uri->getPath());
-        $this->assertEquals('abc=123', $uri->getQuery());
-        $this->assertEquals('', $uri->getFragment());
+        $this->assertSame('josh:sekrit', $uri->getUserInfo());
+        $this->assertSame('[2001:db8::1]', $uri->getHost());
+        $this->assertSame('8080', $uri->getPort());
+        $this->assertSame('/foo/bar', $uri->getPath());
+        $this->assertSame('abc=123', $uri->getQuery());
+        $this->assertSame('', $uri->getFragment());
     }
 
     public function testCreateEnvironmentWithBasePath()
@@ -611,10 +609,10 @@ class UriTest extends TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('/foo', $uri->getBasePath());
-        $this->assertEquals('bar', $uri->getPath());
+        $this->assertSame('/foo', $uri->getBasePath());
+        $this->assertSame('bar', $uri->getPath());
 
-        $this->assertEquals('http://localhost/foo/bar', (string) $uri);
+        $this->assertSame('http://localhost/foo/bar', (string) $uri);
     }
 
     public function testGetBaseUrl()
@@ -628,7 +626,7 @@ class UriTest extends TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('http://example.com/foo', $uri->getBaseUrl());
+        $this->assertSame('http://example.com/foo', $uri->getBaseUrl());
     }
 
     public function testGetBaseUrlWithNoBasePath()
@@ -642,7 +640,7 @@ class UriTest extends TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('http://example.com', $uri->getBaseUrl());
+        $this->assertSame('http://example.com', $uri->getBaseUrl());
     }
 
     public function testGetBaseUrlWithAuthority()
@@ -658,7 +656,7 @@ class UriTest extends TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('http://josh:sekrit@example.com:8080/foo', $uri->getBaseUrl());
+        $this->assertSame('http://josh:sekrit@example.com:8080/foo', $uri->getBaseUrl());
     }
 
     public function testWithPathWhenBaseRootIsEmpty()
@@ -669,7 +667,7 @@ class UriTest extends TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals('http://localhost/test', (string) $uri->withPath('test'));
+        $this->assertSame('http://localhost/test', (string) $uri->withPath('test'));
     }
 
     public function testRequestURIContainsIndexDotPhp()
@@ -694,7 +692,7 @@ class UriTest extends TestCase
                 ]
             )
         );
-        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertSame('abc=123', $uri->getQuery());
     }
 
     public function testUriDistinguishZeroFromEmptyString()

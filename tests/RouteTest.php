@@ -28,7 +28,7 @@ class RouteTest extends TestCase
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
+        $callable = function ($req, $res, $args): void {
             // Do something
         };
 
@@ -39,7 +39,7 @@ class RouteTest extends TestCase
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
+        $callable = function ($req, $res, $args): void {
             // Do something
         };
         $route = new Route($methods, $pattern, $callable);
@@ -51,21 +51,21 @@ class RouteTest extends TestCase
 
     public function testGetMethodsReturnsArrayWhenContructedWithString(): void
     {
-        $route = new Route('GET', '/hello', function ($req, $res, $args) {
+        $route = new Route('GET', '/hello', function ($req, $res, $args): void {
             // Do something
         });
 
-        $this->assertEquals(['GET'], $route->getMethods());
+        $this->assertSame(['GET'], $route->getMethods());
     }
 
     public function testGetMethods(): void
     {
-        $this->assertEquals(['GET', 'POST'], $this->routeFactory()->getMethods());
+        $this->assertSame(['GET', 'POST'], $this->routeFactory()->getMethods());
     }
 
     public function testGetPattern(): void
     {
-        $this->assertEquals('/hello/{name}', $this->routeFactory()->getPattern());
+        $this->assertSame('/hello/{name}', $this->routeFactory()->getPattern());
     }
 
     public function testGetCallable()
@@ -107,8 +107,8 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertEquals($route, $bottom);
@@ -128,8 +128,8 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertSame($called, 1);
@@ -151,8 +151,8 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertSame($called, 1);
@@ -162,14 +162,14 @@ class RouteTest extends TestCase
     public function testIdentifier()
     {
         $route = $this->routeFactory();
-        $this->assertEquals('route0', $route->getIdentifier());
+        $this->assertSame('route0', $route->getIdentifier());
     }
 
     public function testSetName()
     {
         $route = $this->routeFactory();
         $this->assertEquals($route, $route->setName('foo'));
-        $this->assertEquals('foo', $route->getName());
+        $this->assertSame('foo', $route->getName());
     }
 
     public function testSetInvalidName()
@@ -230,7 +230,7 @@ class RouteTest extends TestCase
         $response = new Response;
         $result = $route->callMiddlewareStack($request, $response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(\Slim\Http\Response::class, $result);
     }
 
     public function testControllerInContainer()
@@ -252,15 +252,13 @@ class RouteTest extends TestCase
 
         $result = $route->callMiddlewareStack($request, new Response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
-        $this->assertEquals(1, CallableTest::$CalledCount);
+        $this->assertInstanceOf(\Slim\Http\Response::class, $result);
+        $this->assertSame(1, CallableTest::$CalledCount);
     }
 
     public function testInvokeWhenReturningAResponse()
     {
-        $callable = function ($req, $res, $args) {
-            return $res->write('foo');
-        };
+        $callable = fn($req, $res, $args) => $res->write('foo');
         $route = new Route(['GET'], '/', $callable);
 
         $env = Environment::mock();
@@ -274,14 +272,12 @@ class RouteTest extends TestCase
 
         $response = $route->__invoke($request, $response);
 
-        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertSame('foo', (string)$response->getBody());
     }
 
     public function testInvokeWhenReturningAString()
     {
-        $callable = function ($req, $res, $args) {
-            return "foo";
-        };
+        $callable = fn($req, $res, $args) => "foo";
         $route = new Route(['GET'], '/', $callable);
 
         $env = Environment::mock();
@@ -295,7 +291,7 @@ class RouteTest extends TestCase
 
         $response = $route->__invoke($request, $response);
 
-        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertSame('foo', (string)$response->getBody());
     }
 
     /**
@@ -303,7 +299,7 @@ class RouteTest extends TestCase
      */
     public function testInvokeWithException()
     {
-        $callable = function ($req, $res, $args) {
+        $callable = function ($req, $res, $args): void {
             throw new Exception();
         };
         $route = new Route(['GET'], '/', $callable);
@@ -341,19 +337,17 @@ class RouteTest extends TestCase
 
         $response = $route->__invoke($request, $response);
 
-        $this->assertEquals('bar', (string)$response->getBody());
+        $this->assertSame('bar', (string)$response->getBody());
 
         $output = ob_get_clean();
-        $this->assertEquals('foo', $output);
+        $this->assertSame('foo', $output);
     }
 
     public function testInvokeDeferredCallable()
     {
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
-        $container['foundHandler'] = function () {
-            return new InvocationStrategyTest();
-        };
+        $container['foundHandler'] = fn() => new InvocationStrategyTest();
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall');
         $route->setContainer($container);
@@ -364,7 +358,7 @@ class RouteTest extends TestCase
 
         $result = $route->callMiddlewareStack($request, new Response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(\Slim\Http\Response::class, $result);
         $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -372,16 +366,14 @@ class RouteTest extends TestCase
     {
         $route = $this->routeFactory();
         $route->setPattern('/hola/{nombre}');
-        $this->assertEquals('/hola/{nombre}', $route->getPattern());
+        $this->assertSame('/hola/{nombre}', $route->getPattern());
     }
 
     public function testChangingCallable()
     {
         $container = new Container();
         $container['CallableTest2'] = new CallableTest;
-        $container['foundHandler'] = function () {
-            return new InvocationStrategyTest();
-        };
+        $container['foundHandler'] = fn() => new InvocationStrategyTest();
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall'); //Note that this doesn't actually exist
         $route->setContainer($container);
@@ -394,7 +386,7 @@ class RouteTest extends TestCase
 
         $result = $route->callMiddlewareStack($request, new Response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(\Slim\Http\Response::class, $result);
         $this->assertEquals([$container['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

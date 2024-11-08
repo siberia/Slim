@@ -31,7 +31,7 @@ function getallheaders()
  * @param bool     $replace
  * @param int|null $statusCode
  */
-function header(string $string, bool $replace = true, ?int $statusCode = null)
+function header(string $string, bool $replace = true, ?int $statusCode = null): void
 {
     HeaderStack::push(
         [
@@ -42,7 +42,7 @@ function header(string $string, bool $replace = true, ?int $statusCode = null)
     );
 }
 
-function header_remove($name = null)
+function header_remove($name = null): void
 {
     HeaderStack::remove($name);
 }

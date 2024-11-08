@@ -15,16 +15,14 @@ use Slim\Http\Response;
 
 class NotAllowedTest extends TestCase
 {
-    public function invalidMethodProvider(): array
+    public static function invalidMethodProvider(): \Iterator
     {
-        return [
-            ['application/json', 'application/json', '{'],
-            ['application/vnd.api+json', 'application/json', '{'],
-            ['application/xml', 'application/xml', '<root>'],
-            ['application/hal+xml', 'application/xml', '<root>'],
-            ['text/xml', 'text/xml', '<root>'],
-            ['text/html', 'text/html', '<html>'],
-        ];
+        yield ['application/json', 'application/json', '{'];
+        yield ['application/vnd.api+json', 'application/json', '{'];
+        yield ['application/xml', 'application/xml', '<root>'];
+        yield ['application/hal+xml', 'application/xml', '<root>'];
+        yield ['text/xml', 'text/xml', '<root>'];
+        yield ['text/html', 'text/html', '<html>'];
     }
 
     /**
@@ -42,8 +40,8 @@ class NotAllowedTest extends TestCase
         $this->assertSame(405, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
-        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+        $this->assertSame('POST, PUT', $res->getHeaderLine('Allow'));
+        $this->assertSame(0, strpos((string)$res->getBody(), (string) $startOfBody));
     }
 
     public function testOptions()
@@ -55,14 +53,14 @@ class NotAllowedTest extends TestCase
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
-        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
+        $this->assertSame('POST, PUT', $res->getHeaderLine('Allow'));
     }
 
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMockBuilder(NotAllowed::class)->setMethods(['determineContentType'])->getMock();
+        $errorMock = $this->getMockBuilder(NotAllowed::class)->getMock();
         $errorMock->method('determineContentType')
-            ->will($this->returnValue('unknown/type'));
+            ->willReturn('unknown/type');
 
         $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($this->getRequest('GET', 'unknown/type'), new Response(), ['POST']);
@@ -75,9 +73,9 @@ class NotAllowedTest extends TestCase
      */
     protected function getRequest($method, $contentType = 'text/html')
     {
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->once())->method('getMethod')->will($this->returnValue($method));
-        $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue($contentType));
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
+        $req->expects($this->once())->method('getMethod')->willReturn($method);
+        $req->method('getHeaderLine')->willReturn($contentType);
 
         return $req;
     }

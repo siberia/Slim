@@ -16,16 +16,14 @@ use Slim\Http\Uri;
 
 class NotFoundTest extends TestCase
 {
-    public function notFoundProvider()
+    public static function notFoundProvider(): \Iterator
     {
-        return [
-            ['application/json', 'application/json', '{'],
-            ['application/vnd.api+json', 'application/json', '{'],
-            ['application/xml', 'application/xml', '<root>'],
-            ['application/hal+xml', 'application/xml', '<root>'],
-            ['text/xml', 'text/xml', '<root>'],
-            ['text/html', 'text/html', '<html>'],
-        ];
+        yield ['application/json', 'application/json', '{'];
+        yield ['application/vnd.api+json', 'application/json', '{'];
+        yield ['application/xml', 'application/xml', '<root>'];
+        yield ['application/hal+xml', 'application/xml', '<root>'];
+        yield ['text/xml', 'text/xml', '<root>'];
+        yield ['text/html', 'text/html', '<html>'];
     }
 
     /**
@@ -38,20 +36,20 @@ class NotFoundTest extends TestCase
         $notAllowed = new NotFound();
 
         /** @var Response $res */
-        $res = $notAllowed->__invoke($this->getRequest('GET', $acceptHeader), new Response(), ['POST', 'PUT']);
+        $res = $notAllowed->__invoke($this->getRequest('GET', $acceptHeader), new Response());
 
         $this->assertSame(404, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+        $this->assertSame(0, strpos((string)$res->getBody(), (string) $startOfBody));
     }
 
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMockBuilder(NotFound::class)->setMethods(['determineContentType'])->getMock();
+        $errorMock = $this->getMockBuilder(NotFound::class)->getMock();
         $errorMock->method('determineContentType')
-            ->will($this->returnValue('unknown/type'));
+            ->willReturn('unknown/type');
 
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
 
         $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), ['POST']);
@@ -66,9 +64,9 @@ class NotFoundTest extends TestCase
     {
         $uri = new Uri('http', 'example.com', 80, '/notfound');
 
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->once())->method('getHeaderLine')->will($this->returnValue($contentType));
-        $req->expects($this->any())->method('getUri')->will($this->returnValue($uri));
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
+        $req->expects($this->once())->method('getHeaderLine')->willReturn($contentType);
+        $req->method('getUri')->willReturn($uri);
 
         return $req;
     }

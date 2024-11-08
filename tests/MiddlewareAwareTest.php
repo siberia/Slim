@@ -29,8 +29,8 @@ class MiddlewareAwareTest extends TestCase
         });
 
         $stack->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertSame($stack, $bottom);
@@ -68,7 +68,7 @@ class MiddlewareAwareTest extends TestCase
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertSame('In2In1CenterOut1Out2', (string)$res->getBody());
     }
 
     public function testMiddlewareStackWithAStatic(): void
@@ -98,7 +98,7 @@ class MiddlewareAwareTest extends TestCase
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertSame('In2In1CenterOut1Out2', (string)$res->getBody());
     }
 
     /**
@@ -108,7 +108,7 @@ class MiddlewareAwareTest extends TestCase
     {
         // Build middleware stack
         $stack = new Stackable;
-        $stack->add(function ($req, $res, $next) {
+        $stack->add(function ($req, $res, $next): void {
             $res = $res->write('In1');
             $res = $next($req, $res);
             $res = $res->write('Out1');
@@ -143,8 +143,8 @@ class MiddlewareAwareTest extends TestCase
         });
 
         $stack->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
 
         $this->assertSame([$stack, 'testMiddlewareKernel'], $bottom);
@@ -155,15 +155,13 @@ class MiddlewareAwareTest extends TestCase
     {
         $stack = new Stackable;
         $stack->add(function ($req, $resp) use ($stack) {
-            $stack->add(function ($req, $resp) {
-                return $resp;
-            });
+            $stack->add(fn($req, $resp) => $resp);
             return $resp;
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
         );
     }
 

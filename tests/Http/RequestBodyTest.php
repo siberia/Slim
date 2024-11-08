@@ -82,7 +82,7 @@ class RequestBodyTest extends TestCase
 
     public function testGetMetadataKey()
     {
-        $this->assertEquals('php://temp', $this->body->getMetadata('uri'));
+        $this->assertSame('php://temp', $this->body->getMetadata('uri'));
     }
 
     public function testGetMetadataKeyNotFound()
@@ -119,14 +119,14 @@ class RequestBodyTest extends TestCase
 
     public function testToStringAttached()
     {
-        $this->assertEquals($this->text, (string)$this->body);
+        $this->assertSame($this->text, (string)$this->body);
     }
 
     public function testToStringAttachedRewindsFirst()
     {
-        $this->assertEquals($this->text, (string)$this->body);
-        $this->assertEquals($this->text, (string)$this->body);
-        $this->assertEquals($this->text, (string)$this->body);
+        $this->assertSame($this->text, (string)$this->body);
+        $this->assertSame($this->text, (string)$this->body);
+        $this->assertSame($this->text, (string)$this->body);
     }
 
     public function testToStringDetached()
@@ -135,7 +135,7 @@ class RequestBodyTest extends TestCase
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 
-        $this->assertEquals('', (string)$this->body);
+        $this->assertSame('', (string)$this->body);
     }
 
     public function testClose()
@@ -145,7 +145,7 @@ class RequestBodyTest extends TestCase
         $this->assertAttributeEquals(null, 'stream', $this->body);
         $this->assertFalse($this->body->isReadable());
         $this->assertFalse($this->body->isWritable());
-        $this->assertEquals('', (string)$this->body);
+        $this->assertSame('', (string)$this->body);
 
         $this->setExpectedException('RuntimeException');
         $this->body->tell();
@@ -153,7 +153,7 @@ class RequestBodyTest extends TestCase
 
     public function testGetSizeAttached()
     {
-        $this->assertEquals(mb_strlen($this->text), $this->body->getSize());
+        $this->assertSame(mb_strlen($this->text), $this->body->getSize());
     }
 
     public function testGetSizeDetached()
@@ -169,7 +169,7 @@ class RequestBodyTest extends TestCase
     {
         $this->body->seek(10);
 
-        $this->assertEquals(10, $this->body->tell());
+        $this->assertSame(10, $this->body->tell());
     }
 
     public function testTellDetachedThrowsRuntimeException()
@@ -249,7 +249,7 @@ class RequestBodyTest extends TestCase
     {
         $this->body->seek(10);
 
-        $this->assertEquals(10, $this->body->tell());
+        $this->assertSame(10, $this->body->tell());
     }
 
     public function testSeekDetachedThrowsRuntimeException()
@@ -265,7 +265,7 @@ class RequestBodyTest extends TestCase
         $this->body->seek(10);
         $this->body->rewind();
 
-        $this->assertEquals(0, $this->body->tell());
+        $this->assertSame(0, $this->body->tell());
     }
 
     public function testRewindDetachedThrowsRuntimeException()
@@ -278,7 +278,7 @@ class RequestBodyTest extends TestCase
 
     public function testReadAttached()
     {
-        $this->assertEquals(substr($this->text, 0, 10), $this->body->read(10));
+        $this->assertSame(substr($this->text, 0, 10), $this->body->read(10));
     }
 
     public function testReadDetachedThrowsRuntimeException()
@@ -296,7 +296,7 @@ class RequestBodyTest extends TestCase
         }
         $this->body->write('foo');
 
-        $this->assertEquals($this->text . 'foo', (string)$this->body);
+        $this->assertSame($this->text . 'foo', (string)$this->body);
     }
 
     public function testWriteDetachedThrowsRuntimeException()
@@ -311,7 +311,7 @@ class RequestBodyTest extends TestCase
     {
         $this->body->seek(10);
 
-        $this->assertEquals(substr($this->text, 10), $this->body->getContents());
+        $this->assertSame(substr($this->text, 10), $this->body->getContents());
     }
 
     public function testGetContentsDetachedThrowsRuntimeException()

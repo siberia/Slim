@@ -22,8 +22,8 @@ class ResponseTest extends TestCase
         $response = new Response();
 
         $this->assertAttributeEquals(200, 'status', $response);
-        $this->assertAttributeInstanceOf('\Slim\Http\Headers', 'headers', $response);
-        $this->assertAttributeInstanceOf('\Psr\Http\Message\StreamInterface', 'body', $response);
+        $this->assertAttributeInstanceOf(\Slim\Http\Headers::class, 'headers', $response);
+        $this->assertAttributeInstanceOf(\Psr\Http\Message\StreamInterface::class, 'body', $response);
     }
 
     public function testConstructorWithCustomArgs()
@@ -55,7 +55,7 @@ class ResponseTest extends TestCase
         $response = new Response();
         $response->foo = 'bar';
 
-        $this->assertFalse(property_exists($response, 'foo'));
+        $this->assertObjectNotHasProperty('foo', $response);
     }
 
     public function testGetStatusCode()
@@ -65,7 +65,7 @@ class ResponseTest extends TestCase
         $responseStatus->setAccessible(true);
         $responseStatus->setValue($response, '404');
 
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     public function testWithStatus()
@@ -99,14 +99,14 @@ class ResponseTest extends TestCase
     {
         $responseWithNoMessage = new Response(310);
 
-        $this->assertEquals('', $responseWithNoMessage->getReasonPhrase());
+        $this->assertSame('', $responseWithNoMessage->getReasonPhrase());
     }
 
     public function testGetReasonPhrase()
     {
         $response = new Response(404);
 
-        $this->assertEquals('Not Found', $response->getReasonPhrase());
+        $this->assertSame('Not Found', $response->getReasonPhrase());
     }
 
     /**
@@ -124,7 +124,7 @@ class ResponseTest extends TestCase
         $response = new Response();
         $response = $response->withStatus(199, 'Random Message');
 
-        $this->assertEquals('Random Message', $response->getReasonPhrase());
+        $this->assertSame('Random Message', $response->getReasonPhrase());
     }
 
     public function testGetCustomReasonPhrase()
@@ -132,7 +132,7 @@ class ResponseTest extends TestCase
         $response = new Response();
         $clone = $response->withStatus(200, 'Custom Phrase');
 
-        $this->assertEquals('Custom Phrase', $clone->getReasonPhrase());
+        $this->assertSame('Custom Phrase', $clone->getReasonPhrase());
     }
 
     public function testWithRedirect()
@@ -147,15 +147,15 @@ class ResponseTest extends TestCase
 
         $this->assertSame(301, $clone->getStatusCode());
         $this->assertTrue($clone->hasHeader('Location'));
-        $this->assertEquals('/foo', $clone->getHeaderLine('Location'));
+        $this->assertSame('/foo', $clone->getHeaderLine('Location'));
 
         $this->assertSame(302, $cloneWithDefaultStatus->getStatusCode());
         $this->assertTrue($cloneWithDefaultStatus->hasHeader('Location'));
-        $this->assertEquals('/foo', $cloneWithDefaultStatus->getHeaderLine('Location'));
+        $this->assertSame('/foo', $cloneWithDefaultStatus->getHeaderLine('Location'));
 
         $this->assertSame(301, $cloneWithStatusMethod->getStatusCode());
         $this->assertTrue($cloneWithStatusMethod->hasHeader('Location'));
-        $this->assertEquals('/foo', $cloneWithStatusMethod->getHeaderLine('Location'));
+        $this->assertSame('/foo', $cloneWithStatusMethod->getHeaderLine('Location'));
     }
 
     public function testIsEmpty()
@@ -287,9 +287,9 @@ class ResponseTest extends TestCase
         $originalResponse = new Response();
         $response = $originalResponse->withJson($data, 201);
 
-        $this->assertNotEquals($response->getStatusCode(), $originalResponse->getStatusCode());
-        $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertNotSame($response->getStatusCode(), $originalResponse->getStatusCode());
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
         $body = $response->getBody();
         $body->rewind();
@@ -300,10 +300,10 @@ class ResponseTest extends TestCase
         $originalContents = $originalBody->getContents();
 
         // test the original body hasn't be replaced
-        $this->assertNotEquals($dataJson, $originalContents);
+        $this->assertNotSame($dataJson, $originalContents);
 
-        $this->assertEquals('{"foo":"bar1&bar2"}', $dataJson);
-        $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
+        $this->assertSame('{"foo":"bar1&bar2"}', $dataJson);
+        $this->assertSame($data['foo'], json_decode($dataJson, true)['foo']);
 
         // Test encoding option
         $response = $response->withJson($data, 200, JSON_HEX_AMP);
@@ -312,11 +312,11 @@ class ResponseTest extends TestCase
         $body->rewind();
         $dataJson = $body->getContents();
 
-        $this->assertEquals('{"foo":"bar1\u0026bar2"}', $dataJson);
-        $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
+        $this->assertSame('{"foo":"bar1\u0026bar2"}', $dataJson);
+        $this->assertSame($data['foo'], json_decode($dataJson, true)['foo']);
 
         $response = $response->withStatus(201)->withJson([]);
-        $this->assertEquals($response->getStatusCode(), 201);
+        $this->assertSame($response->getStatusCode(), 201);
     }
 
     /**
@@ -325,7 +325,7 @@ class ResponseTest extends TestCase
     public function testWithInvalidJsonThrowsException()
     {
         $data = ['foo' => 'bar'.chr(233)];
-        $this->assertEquals('bar'.chr(233), $data['foo']);
+        $this->assertSame('bar'.chr(233), $data['foo']);
 
         $response = new Response();
         $response->withJson($data, 200);

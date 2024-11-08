@@ -19,16 +19,14 @@ use UnexpectedValueException;
 
 class ErrorTest extends TestCase
 {
-    public function errorProvider(): array
+    public static function errorProvider(): \Iterator
     {
-        return [
-            ['application/json', 'application/json', '{'],
-            ['application/vnd.api+json', 'application/json', '{'],
-            ['application/xml', 'application/xml', '<error>'],
-            ['application/hal+xml', 'application/xml', '<error>'],
-            ['text/xml', 'text/xml', '<error>'],
-            ['text/html', 'text/html', '<html>'],
-        ];
+        yield ['application/json', 'application/json', '{'];
+        yield ['application/vnd.api+json', 'application/json', '{'];
+        yield ['application/xml', 'application/xml', '<error>'];
+        yield ['application/hal+xml', 'application/xml', '<error>'];
+        yield ['text/xml', 'text/xml', '<error>'];
+        yield ['text/html', 'text/html', '<html>'];
     }
 
     /**
@@ -46,7 +44,7 @@ class ErrorTest extends TestCase
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+        $this->assertSame(0, strpos((string)$res->getBody(), (string) $startOfBody));
     }
 
     /**
@@ -64,7 +62,7 @@ class ErrorTest extends TestCase
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+        $this->assertSame(0, strpos((string)$res->getBody(), (string) $startOfBody));
     }
 
     /**
@@ -72,13 +70,13 @@ class ErrorTest extends TestCase
      */
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMockBuilder(Error::class)->setMethods(['determineContentType'])->getMock();
+        $errorMock = $this->getMockBuilder(Error::class)->getMock();
         $errorMock->method('determineContentType')
-            ->will($this->returnValue('unknown/type'));
+            ->willReturn('unknown/type');
 
         $e = new Exception("Oops");
 
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
 
         $errorMock->__invoke($req, new Response(), $e);
     }
@@ -89,7 +87,7 @@ class ErrorTest extends TestCase
      */
     public function testPreviousException()
     {
-        $error = $this->getMockBuilder('\Slim\Handlers\Error')->setMethods(['logError'])->getMock();
+        $error = $this->getMockBuilder(\Slim\Handlers\Error::class)->getMock();
         $error->expects($this->once())->method('logError')->with(
             $this->logicalAnd(
                 $this->stringContains("Type: Exception" . PHP_EOL . "Message: Second Oops"),
@@ -126,8 +124,8 @@ class ErrorTest extends TestCase
      */
     protected function getRequest($method, $acceptHeader)
     {
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->once())->method('getHeaderLine')->will($this->returnValue($acceptHeader));
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
+        $req->expects($this->once())->method('getHeaderLine')->willReturn($acceptHeader);
 
         return $req;
     }

@@ -15,9 +15,9 @@ class AbstractHandlerTest extends TestCase
 {
     public function testHalfValidContentType(): void
     {
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req = $this->getMockBuilder(\Slim\Http\Request::class)->disableOriginalConstructor()->getMock();
 
-        $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue('unknown/+json'));
+        $req->method('getHeaderLine')->willReturn('unknown/+json');
 
         $abstractHandler = $this->getMockForAbstractClass(AbstractHandler::class);
 
@@ -38,7 +38,7 @@ class AbstractHandlerTest extends TestCase
 
         $return = $method->invoke($abstractHandler, $req);
 
-        $this->assertEquals('text/html', $return);
+        $this->assertSame('text/html', $return);
     }
 
     /**
@@ -47,11 +47,11 @@ class AbstractHandlerTest extends TestCase
      */
     public function testAcceptableMediaTypeIsNotFirstInList()
     {
-        $request = $this->getMockBuilder('Slim\Http\Request')
+        $request = $this->getMockBuilder(\Slim\Http\Request::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $request->expects($this->any())
+        $request
             ->method('getHeaderLine')
             ->willReturn('text/plain,text/html');
 
@@ -66,6 +66,6 @@ class AbstractHandlerTest extends TestCase
         // call determineContentType()
         $return = $method->invoke($abstractHandler, $request);
 
-        $this->assertEquals('text/html', $return);
+        $this->assertSame('text/html', $return);
     }
 }

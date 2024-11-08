@@ -26,7 +26,7 @@ class ContainerTest extends TestCase
 
     public function testGet(): void
     {
-        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
+        $this->assertInstanceOf(\Slim\Http\Environment::class, $this->container->get('environment'));
     }
 
     /**
@@ -47,9 +47,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container;
         $container['foo'] =
-            function (ContainerInterface $container) {
-                return $container->get('doesnt-exist');
-            }
+            fn(ContainerInterface $container) => $container->get('doesnt-exist')
         ;
         $container->get('foo');
     }
@@ -64,9 +62,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container;
         $container['foo'] =
-            function (ContainerInterface $container) {
-                return $container['doesnt-exist'];
-            }
+            fn(ContainerInterface $container) => $container['doesnt-exist']
         ;
         $container->get('foo');
     }
@@ -78,15 +74,15 @@ class ContainerTest extends TestCase
      */
     public function testGetWithErrorThrownByFactoryClosure()
     {
-        $invokable = $this->getMockBuilder('StdClass')->setMethods(['__invoke'])->getMock();
+        $invokable = $this->getMockBuilder('StdClass')->getMock();
         /** @var callable $invokable */
-        $invokable->expects($this->any())
+        $invokable
             ->method('__invoke')
-            ->will($this->throwException(new InvalidArgumentException()));
+            ->willThrowException(new InvalidArgumentException());
 
         $container = new Container;
         $container['foo'] =
-            function (ContainerInterface $container) use ($invokable) {
+            function (ContainerInterface $container) use ($invokable): void {
                 call_user_func($invokable);
             }
         ;
@@ -95,27 +91,27 @@ class ContainerTest extends TestCase
 
     public function testGetRequest()
     {
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
+        $this->assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $this->container['request']);
     }
 
     public function testGetResponse()
     {
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
+        $this->assertInstanceOf(\Psr\Http\Message\ResponseInterface::class, $this->container['response']);
     }
 
     public function testGetRouter()
     {
-        $this->assertInstanceOf('\Slim\Router', $this->container['router']);
+        $this->assertInstanceOf(\Slim\Router::class, $this->container['router']);
     }
 
     public function testGetErrorHandler()
     {
-        $this->assertInstanceOf('\Slim\Handlers\Error', $this->container['errorHandler']);
+        $this->assertInstanceOf(\Slim\Handlers\Error::class, $this->container['errorHandler']);
     }
 
     public function testGetNotAllowedHandler()
     {
-        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $this->container['notAllowedHandler']);
+        $this->assertInstanceOf(\Slim\Handlers\NotAllowed::class, $this->container['notAllowedHandler']);
     }
 
     public function testSettingsCanBeEdited()

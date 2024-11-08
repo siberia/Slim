@@ -24,7 +24,7 @@ class CookiesTest extends TestCase
         $prop = new ReflectionProperty($cookies, 'requestCookies');
         $prop->setAccessible(true);
         $this->assertNotEmpty($prop->getValue($cookies)['test']);
-        $this->assertEquals('Works', $prop->getValue($cookies)['test']);
+        $this->assertSame('Works', $prop->getValue($cookies)['test']);
     }
 
     public function testSetDefaults()
@@ -191,22 +191,22 @@ class CookiesTest extends TestCase
     public function testGet()
     {
         $cookies = new Cookies(['foo' => 'bar']);
-        $this->assertEquals('bar', $cookies->get('foo'));
+        $this->assertSame('bar', $cookies->get('foo'));
         $this->assertNull($cookies->get('missing'));
-        $this->assertEquals('defaultValue', $cookies->get('missing', 'defaultValue'));
+        $this->assertSame('defaultValue', $cookies->get('missing', 'defaultValue'));
     }
 
     public function testParseHeader()
     {
         $cookies = Cookies::parseHeader('foo=bar; name=Josh');
-        $this->assertEquals('bar', $cookies['foo']);
-        $this->assertEquals('Josh', $cookies['name']);
+        $this->assertSame('bar', $cookies['foo']);
+        $this->assertSame('Josh', $cookies['name']);
     }
 
     public function testParseHeaderWithJsonArray()
     {
         $cookies = Cookies::parseHeader('foo=bar; testarray=["someVar1","someVar2","someVar3"]');
-        $this->assertEquals('bar', $cookies['foo']);
+        $this->assertSame('bar', $cookies['foo']);
         $this->assertContains('someVar3', json_decode($cookies['testarray']));
     }
 
@@ -215,8 +215,8 @@ class CookiesTest extends TestCase
         $cookies = new Cookies;
         $cookies->set('test', 'Works');
         $cookies->set('test_array', ['value' => 'bar', 'domain' => 'example.com']);
-        $this->assertEquals('test=Works', $cookies->toHeaders()[0]);
-        $this->assertEquals('test_array=bar; domain=example.com', $cookies->toHeaders()[1]);
+        $this->assertSame('test=Works', $cookies->toHeaders()[0]);
+        $this->assertSame('test_array=bar; domain=example.com', $cookies->toHeaders()[1]);
     }
 
     public function testToHeader()
@@ -258,13 +258,13 @@ class CookiesTest extends TestCase
         $cookie = $method->invokeArgs($cookies, $properties);
         $cookieComplex = $method->invokeArgs($cookies, $propertiesComplex);
         $cookieStringDate = $method->invokeArgs($cookies, $propertiesStringDate);
-        $this->assertEquals('test=Works', $cookie);
-        $this->assertEquals(
+        $this->assertSame('test=Works', $cookie);
+        $this->assertSame(
             'test_complex=Works; domain=example.com; path=/; expires='
             . $formattedDate . '; secure; HostOnly; HttpOnly; SameSite=lax',
             $cookieComplex
         );
-        $this->assertEquals('test_date=Works; expires=' . $formattedStringDate, $cookieStringDate);
+        $this->assertSame('test_date=Works; expires=' . $formattedStringDate, $cookieStringDate);
     }
 
     public function testParseHeaderException()

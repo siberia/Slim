@@ -42,12 +42,12 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
 
-        $this->assertInstanceOf('\Slim\Interfaces\RouteInterface', $route);
+        $this->assertInstanceOf(\Slim\Interfaces\RouteInterface::class, $route);
         $this->assertAttributeContains($route, 'routes', $this->router);
     }
 
@@ -55,11 +55,11 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
 
-        $this->router->pushGroup('/prefix', function () {
+        $this->router->pushGroup('/prefix', function (): void {
         });
         $route = $this->router->map($methods, $pattern, $callable);
         $this->router->popGroup();
@@ -75,7 +75,7 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = ['foo'];
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
         };
 
         $this->router->map($methods, $pattern, $callable);
@@ -87,13 +87,13 @@ class RouterTest extends TestCase
 
         $methods = ['GET'];
         $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/hello/josh/lockhart',
             $this->router->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
@@ -102,7 +102,7 @@ class RouterTest extends TestCase
     public function testGetBasePath()
     {
         $this->router->setBasePath('/new/base/path');
-        $this->assertEquals('/new/base/path', $this->router->getBasePath());
+        $this->assertSame('/new/base/path', $this->router->getBasePath());
     }
 
     public function testPathForWithNoBasePath()
@@ -111,13 +111,13 @@ class RouterTest extends TestCase
 
         $methods = ['GET'];
         $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/hello/josh/lockhart',
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
@@ -127,14 +127,14 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $this->router->setBasePath('/base/path');
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/base/path/hello/josh/lockhart',
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
@@ -144,21 +144,19 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/archive/{year}[/{month:[\d:{2}]}[/d/{day}]]';
-        $callable = function ($request, $response, $args) {
-            return $response;
-        };
+        $callable = fn($request, $response, $args) => $response;
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/archive/2015',
             $this->router->pathFor('foo', ['year' => '2015'])
         );
-        $this->assertEquals(
+        $this->assertSame(
             '/archive/2015/07',
             $this->router->pathFor('foo', ['year' => '2015', 'month' => '07'])
         );
-        $this->assertEquals(
+        $this->assertSame(
             '/archive/2015/07/d/19',
             $this->router->pathFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
         );
@@ -168,13 +166,13 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{name}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s', $args['name']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/hello/josh?a=b&c=d',
             $this->router->pathFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
         );
@@ -184,13 +182,13 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{name}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s', $args['name']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/hello/josh',
             $this->router->pathFor('foo', ['name' => 'josh'], ['a' => null])
         );
@@ -203,7 +201,7 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
@@ -219,7 +217,7 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
@@ -241,19 +239,19 @@ class RouterTest extends TestCase
         $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+        $this->assertInstanceOf(\FastRoute\Dispatcher::class, $method->invoke($this->router));
     }
 
     public function testSetDispatcher()
     {
-        $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r) {
-            $r->addRoute('GET', '/', function () {
+        $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r): void {
+            $r->addRoute('GET', '/', function (): void {
             });
         }));
         $class = new ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
+        $this->assertInstanceOf(\FastRoute\Dispatcher::class, $prop->getValue($this->router));
     }
 
     /**
@@ -262,7 +260,7 @@ class RouterTest extends TestCase
     public function testRemoveRoute()
     {
         $methods = ['GET'];
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello ignore me');
         };
 
@@ -287,7 +285,7 @@ class RouterTest extends TestCase
         $routeCountAfter = count($this->router->getRoutes());
 
         // Assert number of routes is now less by 1
-        $this->assertEquals(
+        $this->assertSame(
             ($routeCountBefore - 1),
             $routeCountAfter
         );
@@ -327,7 +325,7 @@ class RouterTest extends TestCase
 
         $methods = ['GET'];
         $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['voornaam'], $args['achternaam']);
         };
         $route = $this->router->map($methods, $pattern, $callable);
@@ -335,7 +333,7 @@ class RouterTest extends TestCase
 
         $route->setPattern('/hallo/{voornaam:\w+}/{achternaam}');
 
-        $this->assertEquals(
+        $this->assertSame(
             '/hallo/josh/lockhart',
             $this->router->relativePathFor('foo', ['voornaam' => 'josh', 'achternaam' => 'lockhart'])
         );
@@ -390,19 +388,19 @@ class RouterTest extends TestCase
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
+        $callable = function ($request, $response, $args): void {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
         $route = $this->router->map($methods, $pattern, $callable)->setName('foo');
 
-        $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
+        $cacheFile = __DIR__ . '/' . uniqid(microtime(true));
         $this->router->setCacheFile($cacheFile);
         $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
         $dispatcher = $method->invoke($this->router);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $dispatcher);
+        $this->assertInstanceOf(\FastRoute\Dispatcher::class, $dispatcher);
         $this->assertFileExists($cacheFile, 'cache file was not created');
 
         // instantiate a new router & load the cached routes file & see if
@@ -459,6 +457,6 @@ class RouterTest extends TestCase
         $result = $router->fullUrlFor($uri, 'testRoute', ['token' => 'randomToken']);
         $expected = 'http://example.com:8000/app/token/randomToken';
 
-        $this->assertEquals($expected, $result);
+        $this->assertSame($expected, $result);
     }
 }
