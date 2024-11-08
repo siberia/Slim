@@ -802,8 +802,12 @@ class AppTest extends TestCase
         $app->add($mw);
 
         $app->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertEquals($app, $bottom);
@@ -821,8 +825,12 @@ class AppTest extends TestCase
         $app->add($mw);
 
         $app->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertSame($called, 1);
@@ -1069,7 +1077,8 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithSetArgument(): void
     {
         $app = new App();
-        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute']}"))->setArgument('attribute', 'world!');
+        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute']}"))
+            ->setArgument('attribute', 'world!');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1095,7 +1104,8 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithSetArguments(): void
     {
         $app = new App();
-        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute1']} {$args['attribute2']}"))->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+        $app->get('/foo/bar', fn($req, $res, $args) => $res->write("Hello {$args['attribute1']} {$args['attribute2']}"))
+            ->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1176,7 +1186,8 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument(): void
     {
         $app = new App();
-        $app->get('/foo/{name}', fn($req, $res, $args) => $res->write("Hello {$args['extra']} {$args['name']}"))->setArguments(['extra' => 'there', 'name' => 'world!']);
+        $app->get('/foo/{name}', fn($req, $res, $args) => $res->write("Hello {$args['extra']} {$args['name']}"))
+            ->setArguments(['extra' => 'there', 'name' => 'world!']);
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -2497,7 +2508,8 @@ end;
     public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument(): void
     {
         $app = new App();
-        $route = $app->get('/foo[/{bar}]', fn($req, $res, $args) => $res->write(count($args)))->setArgument('baz', 'quux');
+        $route = $app->get('/foo[/{bar}]', fn($req, $res, $args) => $res->write(count($args)))
+            ->setArgument('baz', 'quux');
 
         // Prepare request and response objects
         $env = Environment::mock([

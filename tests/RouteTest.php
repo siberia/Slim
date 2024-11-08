@@ -107,8 +107,12 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertEquals($route, $bottom);
@@ -128,8 +132,12 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertSame($called, 1);
@@ -151,8 +159,12 @@ class RouteTest extends TestCase
         $route->finalize();
 
         $route->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertSame($called, 1);

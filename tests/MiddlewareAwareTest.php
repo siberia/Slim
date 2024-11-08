@@ -29,8 +29,12 @@ class MiddlewareAwareTest extends TestCase
         });
 
         $stack->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertSame($stack, $bottom);
@@ -143,8 +147,12 @@ class MiddlewareAwareTest extends TestCase
         });
 
         $stack->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
 
         $this->assertSame([$stack, 'testMiddlewareKernel'], $bottom);
@@ -160,8 +168,12 @@ class MiddlewareAwareTest extends TestCase
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)->disableOriginalConstructor()->getMock()
+            $this->getMockBuilder(\Psr\Http\Message\ServerRequestInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this->getMockBuilder(\Psr\Http\Message\ResponseInterface::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
     }
 
