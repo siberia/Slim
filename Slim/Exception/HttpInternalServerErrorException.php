@@ -3,15 +3,14 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
 
 namespace Slim\Exception;
 
-/** @api */
-class HttpInternalServerErrorException extends HttpSpecializedException
+final class HttpInternalServerErrorException extends HttpSpecializedException
 {
     /**
      * @var int

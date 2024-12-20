@@ -3,7 +3,7 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
@@ -18,8 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use function is_array;
 use function strtoupper;
 
-/** @api */
-class MethodOverrideMiddleware implements MiddlewareInterface
+final class MethodOverrideMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

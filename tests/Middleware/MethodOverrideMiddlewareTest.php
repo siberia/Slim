@@ -3,143 +3,208 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Builder\AppBuilder;
+use Slim\Middleware\EndpointMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Tests\TestCase;
+use Slim\Middleware\RoutingMiddleware;
+use Slim\Tests\Traits\AppTestTrait;
 
-class MethodOverrideMiddlewareTest extends TestCase
+final class MethodOverrideMiddlewareTest extends TestCase
 {
+    use AppTestTrait;
+
     public function testHeader()
     {
-        $responseFactory = $this->getResponseFactory();
-        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertSame('PUT', $request->getMethod());
-            return $responseFactory->createResponse();
-        })->bindTo($this);
+        $builder = new AppBuilder();
+        $app = $builder->build();
+
+        $test = $this;
+        $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
+            $test->assertSame('PUT', $request->getMethod());
+
+            return $handler->handle($request);
+        });
         $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
-        $request = $this
-            ->createServerRequest('/', 'POST')
+        $app->add($methodOverrideMiddleware);
+        $app->add($middleware);
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
+
+        $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
             ->withHeader('X-Http-Method-Override', 'PUT');
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $this->createMock(RequestHandler::class),
-            null
-        );
-        $middlewareDispatcher->addCallable($middleware);
-        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
-        $middlewareDispatcher->handle($request);
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testBodyParam()
     {
-        $responseFactory = $this->getResponseFactory();
-        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertSame('PUT', $request->getMethod());
-            return $responseFactory->createResponse();
-        })->bindTo($this);
+        $builder = new AppBuilder();
+        $app = $builder->build();
 
+        $test = $this;
+        $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
+            $test->assertSame('PUT', $request->getMethod());
+
+            return $handler->handle($request);
+        });
         $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
-        $request = $this
-            ->createServerRequest('/', 'POST')
+        $app->add($methodOverrideMiddleware);
+        $app->add($middleware);
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
+
+        $app->put('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
             ->withParsedBody(['_METHOD' => 'PUT']);
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $this->createMock(RequestHandler::class),
-            null
-        );
-        $middlewareDispatcher->addCallable($middleware);
-        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
-        $middlewareDispatcher->handle($request);
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testHeaderPreferred()
     {
-        $responseFactory = $this->getResponseFactory();
-        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertSame('DELETE', $request->getMethod());
-            return $responseFactory->createResponse();
-        })->bindTo($this);
+        $builder = new AppBuilder();
+        $app = $builder->build();
 
+        $test = $this;
+        $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
+            $test->assertSame('DELETE', $request->getMethod());
+
+            return $handler->handle($request);
+        });
         $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
-        $request = $this
-            ->createServerRequest('/', 'POST')
-            ->withHeader('X-Http-Method-Override', 'DELETE')
-            ->withParsedBody((object) ['_METHOD' => 'PUT']);
+        $app->add($methodOverrideMiddleware);
+        $app->add($middleware);
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $this->createMock(RequestHandler::class),
-            null
-        );
-        $middlewareDispatcher->addCallable($middleware);
-        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
-        $middlewareDispatcher->handle($request);
+        $app->delete('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('X-Http-Method-Override', 'DELETE')
+            ->withParsedBody((object)['_METHOD' => 'PUT']);
+
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testNoOverride()
     {
-        $responseFactory = $this->getResponseFactory();
-        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertSame('POST', $request->getMethod());
-            return $responseFactory->createResponse();
-        })->bindTo($this);
+        $builder = new AppBuilder();
+        $app = $builder->build();
 
+        $test = $this;
+        $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
+            $test->assertSame('POST', $request->getMethod());
+
+            return $handler->handle($request);
+        });
         $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
-        $request = $this->createServerRequest('/', 'POST');
+        $app->add($methodOverrideMiddleware);
+        $app->add($middleware);
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $this->createMock(RequestHandler::class),
-            null
-        );
-        $middlewareDispatcher->addCallable($middleware);
-        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
-        $middlewareDispatcher->handle($request);
+        $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/');
+
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 
     public function testNoOverrideRewindEofBodyStream()
     {
-        $responseFactory = $this->getResponseFactory();
-        $middleware = (function (Request $request, RequestHandler $handler) use ($responseFactory) {
-            $this->assertSame('POST', $request->getMethod());
-            return $responseFactory->createResponse();
-        })->bindTo($this);
+        $builder = new AppBuilder();
+        $app = $builder->build();
 
+        $test = $this;
+        $middleware = (function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($test) {
+            $test->assertSame('POST', $request->getMethod());
+
+            return $handler->handle($request);
+        });
         $methodOverrideMiddleware = new MethodOverrideMiddleware();
 
-        $request = $this->createServerRequest('/', 'POST');
+        $app->add($methodOverrideMiddleware);
+        $app->add($middleware);
+        $app->add(RoutingMiddleware::class);
+        $app->add(EndpointMiddleware::class);
 
-        // Prophesize the body stream for which `eof()` returns `true` and the
-        // `rewind()` has to be called.
-        $bodyProphecy = $this->prophesize(StreamInterface::class);
-        /** @noinspection PhpUndefinedMethodInspection */
-        $bodyProphecy->eof()
-            ->willReturn(true)
-            ->shouldBeCalled();
-        /** @noinspection PhpUndefinedMethodInspection */
-        $bodyProphecy->rewind()
-            ->shouldBeCalled();
-        /** @var StreamInterface $body */
-        $body = $bodyProphecy->reveal();
+        $app->post('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+
+            return $response;
+        });
+
+        /** @var ServerRequestInterface $request */
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/');
+
+        $body = $this->createMock(StreamInterface::class);
+
+        // Configuring the mock to return true for eof() and ensure rewind() is called
+        $body->expects($this->once())
+            ->method('eof')
+            ->willReturn(true);
+
+        $body->expects($this->once())
+            ->method('rewind');
+
         $request = $request->withBody($body);
 
-        $middlewareDispatcher = $this->createMiddlewareDispatcher(
-            $this->createMock(RequestHandler::class),
-            null
-        );
-        $middlewareDispatcher->addCallable($middleware);
-        $middlewareDispatcher->addMiddleware($methodOverrideMiddleware);
-        $middlewareDispatcher->handle($request);
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string)$response->getBody());
     }
 }

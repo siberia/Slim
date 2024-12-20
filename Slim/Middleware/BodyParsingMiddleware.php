@@ -3,7 +3,7 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
@@ -15,42 +15,28 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Slim\Media\MediaType;
+use Slim\Media\MediaTypeDetector;
 
-use function count;
-use function explode;
 use function is_array;
-use function is_null;
 use function is_object;
-use function is_string;
 use function json_decode;
 use function libxml_clear_errors;
-use function libxml_disable_entity_loader;
 use function libxml_use_internal_errors;
 use function parse_str;
 use function simplexml_load_string;
-use function strtolower;
-use function trim;
 
-use const LIBXML_VERSION;
-
-/** @api */
-class BodyParsingMiddleware implements MiddlewareInterface
+final class BodyParsingMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var callable[]
-     */
-    protected array $bodyParsers;
+    private MediaTypeDetector $mediaTypeDetector;
 
-    /**
-     * @param callable[] $bodyParsers list of body parsers as an associative array of mediaType => callable
-     */
-    public function __construct(array $bodyParsers = [])
+    private array $handlers = [];
+
+    private string $defaultMediaType = 'text/html';
+
+    public function __construct(MediaTypeDetector $mediaTypeDetector)
     {
-        $this->registerDefaultBodyParsers();
-
-        foreach ($bodyParsers as $mediaType => $parser) {
-            $this->registerBodyParser($mediaType, $parser);
-        }
+        $this->mediaTypeDetector = $mediaTypeDetector;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -66,38 +52,29 @@ class BodyParsingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param string   $mediaType A HTTP media type (excluding content-type params).
-     * @param callable $callable  A callable that returns parsed contents for media type.
+     * @param string $mediaType The HTTP media type (excluding content-type params)
+     * @param callable $handler The callable that returns parsed contents for media type
      */
-    public function registerBodyParser(string $mediaType, callable $callable): self
+    public function withBodyParser(string $mediaType, callable $handler): self
     {
-        $this->bodyParsers[$mediaType] = $callable;
-        return $this;
+        $clone = clone $this;
+        $clone->handlers[$mediaType] = $handler;
+
+        return $clone;
     }
 
-    /**
-     * @param string   $mediaType A HTTP media type (excluding content-type params).
-     */
-    public function hasBodyParser(string $mediaType): bool
+    public function withDefaultMediaType(string $mediaType): self
     {
-        return isset($this->bodyParsers[$mediaType]);
+        $clone = clone $this;
+        $clone->defaultMediaType = $mediaType;
+
+        return $clone;
     }
 
-    /**
-     * @param string    $mediaType A HTTP media type (excluding content-type params).
-     * @throws RuntimeException
-     */
-    public function getBodyParser(string $mediaType): callable
+    public function withDefaultBodyParsers(): self
     {
-        if (!isset($this->bodyParsers[$mediaType])) {
-            throw new RuntimeException('No parser for type ' . $mediaType);
-        }
-        return $this->bodyParsers[$mediaType];
-    }
-
-    protected function registerDefaultBodyParsers(): void
-    {
-        $this->registerBodyParser('application/json', static function ($input) {
+        $clone = clone $this;
+        $clone = $clone->withBodyParser(MediaType::APPLICATION_JSON, function ($input) {
             $result = json_decode($input, true);
 
             if (!is_array($result)) {
@@ -107,17 +84,16 @@ class BodyParsingMiddleware implements MiddlewareInterface
             return $result;
         });
 
-        $this->registerBodyParser('application/x-www-form-urlencoded', static function ($input) {
+        $clone = $clone->withBodyParser(MediaType::APPLICATION_FORM_URLENCODED, function ($input) {
             parse_str($input, $data);
+
             return $data;
         });
 
-        $xmlCallable = static function ($input) {
-            $backup = self::disableXmlEntityLoader(true);
+        $xmlCallable = function ($input) {
             $backup_errors = libxml_use_internal_errors(true);
             $result = simplexml_load_string($input);
 
-            self::disableXmlEntityLoader($backup);
             libxml_clear_errors();
             libxml_use_internal_errors($backup_errors);
 
@@ -128,70 +104,37 @@ class BodyParsingMiddleware implements MiddlewareInterface
             return $result;
         };
 
-        $this->registerBodyParser('application/xml', $xmlCallable);
-        $this->registerBodyParser('text/xml', $xmlCallable);
+        return $clone
+            ->withBodyParser(MediaType::APPLICATION_XML, $xmlCallable)
+            ->withBodyParser(MediaType::TEXT_XML, $xmlCallable);
     }
 
     /**
-     * @return null|array<mixed>|object
+     * Parse request body.
+     *
+     * @throws RuntimeException
      */
-    protected function parseBody(ServerRequestInterface $request)
+    private function parseBody(ServerRequestInterface $request): array|object|null
     {
-        $mediaType = $this->getMediaType($request);
-        if ($mediaType === null) {
-            return null;
-        }
+        // Negotiate content type
+        $contentTypes = $this->mediaTypeDetector->detect($request);
+        $contentType = $contentTypes[0] ?? $this->defaultMediaType;
 
-        // Check if this specific media type has a parser registered first
-        if (!isset($this->bodyParsers[$mediaType])) {
-            // If not, look for a media type with a structured syntax suffix (RFC 6839)
-            $parts = explode('+', $mediaType);
-            if (count($parts) >= 2) {
-                $mediaType = 'application/' . $parts[count($parts) - 1];
-            }
-        }
+        // Determine which handler to use based on media type
+        $handler = $this->handlers[$contentType] ?? reset($this->handlers);
 
-        if (isset($this->bodyParsers[$mediaType])) {
-            $body = (string)$request->getBody();
-            $parsed = $this->bodyParsers[$mediaType]($body);
+        // Invoke the parser
+        $parsed = call_user_func(
+            $handler,
+            (string)$request->getBody()
+        );
 
-            if ($parsed !== null && !is_object($parsed) && !is_array($parsed)) {
-                throw new RuntimeException(
-                    'Request body media type parser return value must be an array, an object, or null'
-                );
-            }
-
+        if ($parsed === null || is_object($parsed) || is_array($parsed)) {
             return $parsed;
         }
 
-        return null;
-    }
-
-    /**
-     * @return string|null The serverRequest media type, minus content-type params
-     */
-    protected function getMediaType(ServerRequestInterface $request): ?string
-    {
-        $contentType = $request->getHeader('Content-Type')[0] ?? null;
-
-        if (is_string($contentType) && trim($contentType) !== '') {
-            $contentTypeParts = explode(';', $contentType);
-            return strtolower(trim($contentTypeParts[0]));
-        }
-
-        return null;
-    }
-
-    protected static function disableXmlEntityLoader(bool $disable): bool
-    {
-        if (LIBXML_VERSION >= 20900) {
-            // libxml >= 2.9.0 disables entity loading by default, so it is
-            // safe to skip the real call (deprecated in PHP 8).
-            return true;
-        }
-
-        // @codeCoverageIgnoreStart
-        return libxml_disable_entity_loader($disable);
-        // @codeCoverageIgnoreEnd
+        throw new RuntimeException(
+            'Request body media type parser return value must be an array, an object, or null.'
+        );
     }
 }

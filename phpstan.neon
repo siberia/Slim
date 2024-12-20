@@ -1,0 +1,6 @@
+parameters:
+    level: 5
+    paths:
+        - Slim
+includes:
+    - vendor/bnf/phpstan-psr-container/extension.neon

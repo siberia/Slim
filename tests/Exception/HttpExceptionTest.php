@@ -3,23 +3,33 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
 
 namespace Slim\Tests\Exception;
 
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Tests\TestCase;
+use Slim\Tests\Traits\AppTestTrait;
 
-class HttpExceptionTest extends TestCase
+final class HttpExceptionTest extends TestCase
 {
+    use AppTestTrait;
+
     public function testHttpExceptionRequestReponseGetterSetters()
     {
-        $request = $this->createServerRequest('/');
+        $app = (new AppBuilder())->build();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
         $exception = new HttpNotFoundException($request);
 
         $this->assertInstanceOf(ServerRequestInterface::class, $exception->getRequest());
@@ -27,7 +37,11 @@ class HttpExceptionTest extends TestCase
 
     public function testHttpExceptionAttributeGettersSetters()
     {
-        $request = $this->createServerRequest('/');
+        $app = (new AppBuilder())->build();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
 
         $exception = new HttpNotFoundException($request);
         $exception->setTitle('Title');
@@ -39,7 +53,11 @@ class HttpExceptionTest extends TestCase
 
     public function testHttpNotAllowedExceptionGetAllowedMethods()
     {
-        $request = $this->createServerRequest('/');
+        $app = (new AppBuilder())->build();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
 
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);

@@ -3,68 +3,77 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Slim\Builder\AppBuilder;
+use Slim\Container\GuzzleDefinitions;
+use Slim\Container\HttpSoftDefinitions;
+use Slim\Container\LaminasDiactorosDefinitions;
+use Slim\Container\NyholmDefinitions;
+use Slim\Container\SlimHttpDefinitions;
+use Slim\Container\SlimPsr7Definitions;
+use Slim\Media\MediaTypeDetector;
 use Slim\Middleware\BodyParsingMiddleware;
-use Slim\Tests\TestCase;
+use Slim\Middleware\ResponseFactoryMiddleware;
+use Slim\RequestHandler\Runner;
+use Slim\Tests\Traits\AppTestTrait;
 
-use function is_string;
 use function simplexml_load_string;
 
-class BodyParsingMiddlewareTest extends TestCase
+final class BodyParsingMiddlewareTest extends TestCase
 {
-    /**
-     * Create a request handler that simply assigns the $request that it receives to a public property
-     * of the returned response, so that we can then inspect that request.
-     */
-    protected function createRequestHandler(): RequestHandlerInterface
+    use AppTestTrait;
+
+    #[DataProvider('parsingProvider')]
+    public function testParsing($contentType, $body, $expected)
     {
-        $response = $this->createResponse();
-        return new class ($response) implements RequestHandlerInterface {
-            private $response;
-            public $request;
+        $builder = new AppBuilder();
 
-            public function __construct(ResponseInterface $response)
-            {
-                $this->response = $response;
-            }
+        // Replace or change the PSR-17 factory because slim/http has its own parser
+        $builder->addDefinitions(NyholmDefinitions::class);
+        $app = $builder->build();
 
-            public function handle(ServerRequestInterface $request): ResponseInterface
-            {
-                $this->request = $request;
-                return $this->response;
-            }
-        };
+        $responseFactory = $app->getContainer()->get(ResponseFactoryMiddleware::class);
+
+        $test = $this;
+        $middlewares = [
+            $app->getContainer()->get(BodyParsingMiddleware::class),
+            $this->createCallbackMiddleware(function (ServerRequestInterface $request) use ($expected, $test) {
+                $test->assertEquals($expected, $request->getParsedBody());
+            }),
+            $responseFactory,
+        ];
+
+        $stream = $app->getContainer()
+            ->get(StreamFactoryInterface::class)
+            ->createStream($body);
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('Accept', $contentType)
+            ->withHeader('Content-Type', $contentType)
+            ->withBody($stream);
+
+        (new Runner($middlewares))->handle($request);
     }
 
-    /**
-     * @param string $contentType
-     * @param string $body
-     * @return ServerRequestInterface
-     */
-    protected function createRequestWithBody($contentType, $body)
-    {
-        $request = $this->createServerRequest('/', 'POST');
-        if (is_string($contentType)) {
-            $request = $request->withHeader('Content-Type', $contentType);
-        }
-        if (is_string($body)) {
-            $request = $request->withBody($this->createStream($body));
-        }
-        return $request;
-    }
-
-
-    public function parsingProvider()
+    public static function parsingProvider(): array
     {
         return [
             'form' => [
@@ -73,7 +82,7 @@ class BodyParsingMiddlewareTest extends TestCase
                 ['foo' => 'bar'],
             ],
             'json' => [
-                "application/json",
+                'application/json',
                 '{"foo":"bar"}',
                 ['foo' => 'bar'],
             ],
@@ -92,20 +101,10 @@ class BodyParsingMiddlewareTest extends TestCase
                 '<person><name>John</name></person>',
                 simplexml_load_string('<person><name>John</name></person>'),
             ],
-            'xml-suffix' => [
-                'application/hal+xml;charset=utf8',
-                '<person><name>John</name></person>',
-                simplexml_load_string('<person><name>John</name></person>'),
-            ],
             'text-xml' => [
                 'text/xml',
                 '<person><name>John</name></person>',
                 simplexml_load_string('<person><name>John</name></person>'),
-            ],
-            'invalid-json' => [
-                'application/json;charset=utf8',
-                '{"foo"}/bar',
-                null,
             ],
             'valid-json-but-not-an-array' => [
                 'application/json;charset=utf8',
@@ -122,11 +121,12 @@ class BodyParsingMiddlewareTest extends TestCase
                 '"foo bar"',
                 null,
             ],
-            'no-contenttype' => [
-                null,
-                '"foo bar"',
-                null,
-            ],
+            // null is not supported anymore
+            // 'no-contenttype' => [
+            //    null,
+            //    '"foo bar"',
+            //    null,
+            // ],
             'invalid-contenttype' => [
                 'foo',
                 '"foo bar"',
@@ -145,71 +145,194 @@ class BodyParsingMiddlewareTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider parsingProvider
-     */
-    public function testParsing($contentType, $body, $expected)
+    #[DataProvider('parsingInvalidJsonProvider')]
+    public function testParsingInvalidJson($contentType, $body)
     {
-        $request = $this->createRequestWithBody($contentType, $body);
+        $builder = new AppBuilder();
 
-        $middleware = new BodyParsingMiddleware();
-        $requestHandler = $this->createRequestHandler();
-        $middleware->process($request, $requestHandler);
+        // Replace or change the PSR-17 factory because slim/http has its own parser
+        $builder->addDefinitions(SlimPsr7Definitions::class);
+        $app = $builder->build();
+        $container = $app->getContainer();
 
-        $this->assertEquals($expected, $requestHandler->request->getParsedBody());
+        $middlewares = [
+            $container->get(BodyParsingMiddleware::class),
+            $container->get(ResponseFactoryMiddleware::class),
+        ];
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('Accept', $contentType)
+            ->withHeader('Content-Type', $contentType);
+
+        $request->getBody()->write($body);
+
+        $response = (new Runner($middlewares))->handle($request);
+
+        $this->assertSame('', (string)$response->getBody());
+    }
+
+    public static function parsingInvalidJsonProvider(): array
+    {
+        return [
+            'invalid-json' => [
+                'application/json;charset=utf8',
+                '{"foo"}/bar',
+            ],
+            'invalid-json-2' => [
+                'application/json',
+                '{',
+            ],
+        ];
     }
 
     public function testParsingWithARegisteredParser()
     {
-        $request = $this->createRequestWithBody('application/vnd.api+json', '{"foo":"bar"}');
+        $builder = new AppBuilder();
 
-        $parsers = [
-            'application/vnd.api+json' => function ($input) {
-                return ['data' => $input];
-            },
-        ];
-        $middleware = new BodyParsingMiddleware($parsers);
-        $requestHandler = $this->createRequestHandler();
-        $middleware->process($request, $requestHandler);
+        // Replace or change the PSR-17 factory because slim/http has its own parser
+        $builder->addDefinitions(SlimHttpDefinitions::class);
+        $builder->addDefinitions(
+            [
+                BodyParsingMiddleware::class => function (ContainerInterface $container) {
+                    $mediaTypeDetector = $container->get(MediaTypeDetector::class);
+                    $middleware = new BodyParsingMiddleware($mediaTypeDetector);
 
-        $this->assertSame(['data' => '{"foo":"bar"}'], $requestHandler->request->getParsedBody());
+                    return $middleware->withBodyParser('application/vnd.api+json', function ($input) {
+                        return ['data' => json_decode($input, true)];
+                    });
+                },
+            ]
+        );
+        $app = $builder->build();
+
+        $input = '{"foo":"bar"}';
+        $stream = $app->getContainer()
+            ->get(StreamFactoryInterface::class)
+            ->createStream($input);
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('Accept', 'application/vnd.api+json;charset=utf8')
+            ->withBody($stream);
+
+        $middlewares = [];
+        $middlewares[] = $app->getContainer()->get(BodyParsingMiddleware::class);
+        $middlewares[] = $this->createParsedBodyMiddleware();
+        $middlewares[] = $app->getContainer()->get(ResponseFactoryMiddleware::class);
+
+        $response = (new Runner($middlewares))->handle($request);
+
+        $this->assertJsonResponse(['data' => ['foo' => 'bar']], $response);
+        $this->assertSame(['data' => ['foo' => 'bar']], json_decode((string)$response->getBody(), true));
     }
 
-    public function testParsingFailsWhenAnInvalidTypeIsReturned()
+    #[DataProvider('httpDefinitionsProvider')]
+    public function testParsingFailsWhenAnInvalidTypeIsReturned(string $definitions)
     {
-        $request = $this->createRequestWithBody('application/json;charset=utf8', '{"foo":"bar"}');
+        // The slim/http package has its own body parser, so this middleware will not be used.
+        // The SlimHttpDefinitions::class will not fail here, because the body parser will not be executed.
+        if ($definitions === SlimHttpDefinitions::class) {
+            $this->assertTrue(true);
 
-        $parsers = [
-            'application/json' => function ($input) {
-                return 10; // invalid - should return null, array or object
-            },
-        ];
-        $middleware = new BodyParsingMiddleware($parsers);
+            return;
+        }
 
         $this->expectException(RuntimeException::class);
-        $middleware->process($request, $this->createRequestHandler());
+
+        $builder = new AppBuilder();
+        $builder->addDefinitions($definitions);
+
+        $builder->addDefinitions(
+            [
+                BodyParsingMiddleware::class => function (ContainerInterface $container) {
+                    $mediaTypeDetector = $container->get(MediaTypeDetector::class);
+                    $middleware = new BodyParsingMiddleware($mediaTypeDetector);
+
+                    $middleware = $middleware->withBodyParser('application/json', function () {
+                        // invalid - should return null, array or object
+                        return 10;
+                    });
+
+                    return $middleware;
+                },
+            ]
+        );
+        $app = $builder->build();
+
+        $stream = $app->getContainer()
+            ->get(StreamFactoryInterface::class)
+            ->createStream('{"foo":"bar"}');
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('POST', '/')
+            ->withHeader('Accept', 'application/json;charset=utf8')
+            ->withHeader('Content-Type', 'application/json;charset=utf8')
+            ->withBody($stream);
+
+        $middlewares = [];
+        $middlewares[] = $app->getContainer()->get(BodyParsingMiddleware::class);
+        $middlewares[] = $this->createParsedBodyMiddleware();
+        $middlewares[] = $app->getContainer()->get(ResponseFactoryMiddleware::class);
+
+        (new Runner($middlewares))->handle($request);
     }
 
-    public function testSettingAndGettingAParser()
+    public static function httpDefinitionsProvider(): array
     {
-        $middleware = new BodyParsingMiddleware();
-        $parser = function ($input) {
-            return ['data' => $input];
+        return [
+            'GuzzleDefinitions' => [GuzzleDefinitions::class],
+            'HttpSoftDefinitions' => [HttpSoftDefinitions::class],
+            'LaminasDiactorosDefinitions' => [LaminasDiactorosDefinitions::class],
+            'NyholmDefinitions' => [NyholmDefinitions::class],
+            'SlimHttpDefinitions' => [SlimHttpDefinitions::class],
+            'SlimPsr7Definitions' => [SlimPsr7Definitions::class],
+        ];
+    }
+
+    private function createParsedBodyMiddleware(): MiddlewareInterface
+    {
+        return new class implements MiddlewareInterface {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $response = $handler->handle($request);
+
+                // Return the parsed body
+                $response->getBody()->write(json_encode($request->getParsedBody()));
+
+                return $response;
+            }
         };
-
-        $this->assertFalse($middleware->hasBodyParser('text/foo'));
-
-        $middleware->registerBodyParser('text/foo', $parser);
-        $this->assertTrue($middleware->hasBodyParser('text/foo'));
-
-        $this->assertSame($parser, $middleware->getBodyParser('text/foo'));
     }
 
-    public function testGettingUnknownParser()
+    private function createCallbackMiddleware(callable $callback): MiddlewareInterface
     {
-        $middleware = new BodyParsingMiddleware();
+        return new class ($callback) implements MiddlewareInterface {
+            /**
+             * @var callable
+             */
+            private $callback;
 
-        $this->expectException(RuntimeException::class);
-        $middleware->getBodyParser('text/foo');
+            public function __construct(callable $callback)
+            {
+                $this->callback = $callback;
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $response = $handler->handle($request);
+
+                call_user_func($this->callback, $request, $handler);
+
+                return $response;
+            }
+        };
     }
 }

@@ -3,7 +3,7 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
@@ -40,6 +40,7 @@ class SlowPokeStream implements StreamInterface
         while (!$this->eof()) {
             $content .= $this->read(self::CHUNK_SIZE);
         }
+
         return $content;
     }
 
@@ -92,6 +93,7 @@ class SlowPokeStream implements StreamInterface
         usleep(1);
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
+
         return str_repeat('.', $size);
     }
 

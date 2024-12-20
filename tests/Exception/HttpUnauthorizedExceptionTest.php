@@ -3,21 +3,31 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
 
 namespace Slim\Tests\Exception;
 
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestFactoryInterface;
+use Slim\Builder\AppBuilder;
 use Slim\Exception\HttpUnauthorizedException;
-use Slim\Tests\TestCase;
+use Slim\Tests\Traits\AppTestTrait;
 
-class HttpUnauthorizedExceptionTest extends TestCase
+final class HttpUnauthorizedExceptionTest extends TestCase
 {
+    use AppTestTrait;
+
     public function testHttpUnauthorizedException()
     {
-        $request = $this->createServerRequest('/');
+        $app = (new AppBuilder())->build();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
         $exception = new HttpUnauthorizedException($request);
 
         $this->assertInstanceOf(HttpUnauthorizedException::class, $exception);
@@ -25,7 +35,12 @@ class HttpUnauthorizedExceptionTest extends TestCase
 
     public function testHttpUnauthorizedExceptionWithMessage()
     {
-        $request = $this->createServerRequest('/');
+        $app = (new AppBuilder())->build();
+
+        $request = $app->getContainer()
+            ->get(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', '/');
+
         $exception = new HttpUnauthorizedException($request, 'Hello World');
 
         $this->assertSame('Hello World', $exception->getMessage());

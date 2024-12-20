@@ -3,7 +3,7 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/5.x/LICENSE.md (MIT License)
  */
 
 declare(strict_types=1);
@@ -23,15 +23,15 @@ use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
 
-/** @api */
-class OutputBufferingMiddleware implements MiddlewareInterface
+final class OutputBufferingMiddleware implements MiddlewareInterface
 {
     public const APPEND = 'append';
+
     public const PREPEND = 'prepend';
 
-    protected StreamFactoryInterface $streamFactory;
+    private StreamFactoryInterface $streamFactory;
 
-    protected string $style;
+    private string $style;
 
     /**
      * @param string $style Either "append" or "prepend"
@@ -42,7 +42,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         $this->style = $style;
 
         if (!in_array($style, [static::APPEND, static::PREPEND], true)) {
-            throw new InvalidArgumentException("Invalid style `{$style}`. Must be `append` or `prepend`");
+            throw new InvalidArgumentException(sprintf('Invalid style `%s`. Must be `append` or `prepend`', $style));
         }
     }
 
