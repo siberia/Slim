@@ -28,9 +28,8 @@ class NotFoundTest extends TestCase
 
     /**
      * Test invalid method returns the correct code and content type
-     *
-     * @dataProvider notFoundProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notFoundProvider')]
     public function testNotFound($acceptHeader, $contentType, $startOfBody)
     {
         $notAllowed = new NotFound();

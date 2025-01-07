@@ -833,7 +833,7 @@ class AppTest extends TestCase
                 ->getMock()
         );
 
-        $this->assertSame($called, 1);
+        $this->assertSame(1, $called);
     }
 
     public function testAddMiddlewareOnRoute(): void

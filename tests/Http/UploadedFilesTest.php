@@ -58,9 +58,8 @@ final class UploadedFilesTest extends TestCase
     /**
      * @param array $input    The input array to parse.
      * @param array $expected The expected normalized output.
-     *
-     * @dataProvider providerCreateFromEnvironment
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerCreateFromEnvironment')]
     public function testCreateFromEnvironmentFromFilesSuperglobal(array $input, array $expected)
     {
         $_FILES = $input;
@@ -71,9 +70,8 @@ final class UploadedFilesTest extends TestCase
 
     /**
      * @param array $input The input array to parse.
-     *
-     * @dataProvider providerCreateFromEnvironment
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerCreateFromEnvironment')]
     public function testCreateFromEnvironmentFromUserData(array $input)
     {
         //If slim.files provided - it will return what was provided

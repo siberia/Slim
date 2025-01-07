@@ -207,7 +207,7 @@ class CookiesTest extends TestCase
     {
         $cookies = Cookies::parseHeader('foo=bar; testarray=["someVar1","someVar2","someVar3"]');
         $this->assertSame('bar', $cookies['foo']);
-        $this->assertContains('someVar3', json_decode($cookies['testarray']));
+        $this->assertContains('someVar3', json_decode((string) $cookies['testarray']));
     }
 
     public function testToHeaders()

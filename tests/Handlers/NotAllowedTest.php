@@ -27,9 +27,8 @@ class NotAllowedTest extends TestCase
 
     /**
      * Test invalid method returns the correct code and content type
-     *
-     * @dataProvider invalidMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidMethodProvider')]
     public function testInvalidMethod($acceptHeader, $contentType, $startOfBody)
     {
         $notAllowed = new NotAllowed();

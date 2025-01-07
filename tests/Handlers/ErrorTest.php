@@ -31,9 +31,8 @@ class ErrorTest extends TestCase
 
     /**
      * Test invalid method returns the correct code and content type
-     *
-     * @dataProvider errorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('errorProvider')]
     public function testError($acceptHeader, $contentType, $startOfBody)
     {
         $error = new Error();
@@ -49,9 +48,8 @@ class ErrorTest extends TestCase
 
     /**
      * Test invalid method returns the correct code and content type with details
-     *
-     * @dataProvider errorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('errorProvider')]
     public function testErrorDisplayDetails($acceptHeader, $contentType, $startOfBody)
     {
         $error = new Error(true);

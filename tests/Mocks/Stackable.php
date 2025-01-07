@@ -22,7 +22,7 @@ class Stackable
 
     public function alternativeSeed()
     {
-        $this->seedMiddlewareStack([$this, 'testMiddlewareKernel']);
+        $this->seedMiddlewareStack($this->testMiddlewareKernel(...));
     }
 
     public function testMiddlewareKernel(ServerRequestInterface $request, Response $response)

@@ -32,8 +32,8 @@ class PhpErrorTest extends TestCase
      * Test invalid method returns the correct code and content type
      *
      * @requires PHP 7.0
-     * @dataProvider phpErrorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('phpErrorProvider')]
     public function testPhpError($acceptHeader, $contentType, $startOfBody)
     {
         $error = new PhpError();
@@ -50,8 +50,8 @@ class PhpErrorTest extends TestCase
      * Test invalid method returns the correct code and content type
      *
      * @requires PHP 7.0
-     * @dataProvider phpErrorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('phpErrorProvider')]
     public function testPhpErrorDisplayDetails($acceptHeader, $contentType, $startOfBody)
     {
         $error = new PhpError(true);
@@ -85,8 +85,8 @@ class PhpErrorTest extends TestCase
      * Test invalid method returns the correct code and content type
      *
      * @requires PHP 5.0
-     * @dataProvider phpErrorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('phpErrorProvider')]
     public function testPhpError5($acceptHeader, $contentType, $startOfBody)
     {
         $this->skipIfPhp70();
@@ -107,9 +107,8 @@ class PhpErrorTest extends TestCase
 
     /**
      * Test invalid method returns the correct code and content type
-     *
-     * @dataProvider phpErrorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('phpErrorProvider')]
     public function testPhpErrorDisplayDetails5($acceptHeader, $contentType, $startOfBody)
     {
         $this->skipIfPhp70();

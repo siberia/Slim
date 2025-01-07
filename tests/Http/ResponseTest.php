@@ -316,7 +316,7 @@ class ResponseTest extends TestCase
         $this->assertSame($data['foo'], json_decode($dataJson, true)['foo']);
 
         $response = $response->withStatus(201)->withJson([]);
-        $this->assertSame($response->getStatusCode(), 201);
+        $this->assertSame(201, $response->getStatusCode());
     }
 
     /**

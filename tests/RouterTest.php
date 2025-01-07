@@ -292,18 +292,18 @@ class RouterTest extends TestCase
 
         // Simple test that the correct route was removed
         $this->assertEquals(
-            $this->router->getNamedRoute('foo')->getName(),
-            'foo'
+            'foo',
+            $this->router->getNamedRoute('foo')->getName()
         );
 
         $this->assertEquals(
-            $this->router->getNamedRoute('bar')->getName(),
-            'bar'
+            'bar',
+            $this->router->getNamedRoute('bar')->getName()
         );
 
         $this->assertEquals(
-            $this->router->getNamedRoute('buzz')->getName(),
-            'buzz'
+            'buzz',
+            $this->router->getNamedRoute('buzz')->getName()
         );
 
         // Exception thrown here, route no longer exists

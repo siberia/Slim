@@ -59,7 +59,7 @@ class CallableResolverTest extends TestCase
     {
         $obj = new CallableTest();
         $resolver = new CallableResolver($this->container);
-        $callable = $resolver->resolve([$obj, 'toCall']);
+        $callable = $resolver->resolve($obj->toCall(...));
         $callable();
         $this->assertSame(1, CallableTest::$CalledCount);
     }
