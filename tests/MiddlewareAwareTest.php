@@ -155,7 +155,7 @@ class MiddlewareAwareTest extends TestCase
                 ->getMock()
         );
 
-        $this->assertSame([$stack, 'testMiddlewareKernel'], $bottom);
+        $this->assertSame($stack->testMiddlewareKernel(...), $bottom);
     }
 
 

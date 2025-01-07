@@ -87,8 +87,8 @@ class RouteTest extends TestCase
 
         $route->setArguments(['a' => 'b']);
         $this->assertSame($route->getArguments(), ['a' => 'b']);
-        $this->assertSame($route->getArgument('a', 'default'), 'b');
-        $this->assertSame($route->getArgument('b', 'default'), 'default');
+        $this->assertSame('b', $route->getArgument('a', 'default'));
+        $this->assertSame('default', $route->getArgument('b', 'default'));
 
         $this->assertEquals($route, $route->setArgument('c', null));
         $this->assertEquals($route, $route->setArguments(['d' => null]));
@@ -140,7 +140,7 @@ class RouteTest extends TestCase
                 ->getMock()
         );
 
-        $this->assertSame($called, 1);
+        $this->assertSame(1, $called);
     }
 
     public function testRefinalizing()
@@ -167,7 +167,7 @@ class RouteTest extends TestCase
                 ->getMock()
         );
 
-        $this->assertSame($called, 1);
+        $this->assertSame(1, $called);
     }
 
 
