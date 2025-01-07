@@ -28,20 +28,21 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
         "pimple/pimple": "^3.0",
-        "psr/http-message": "^1.0",
+        "psr/http-message": "^1.0 || ^2.0",
         "nikic/fast-route": "^1.0",
-        "psr/container": "^1.0"
+        "psr/container": "^1.0 || ^2.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.10",
-        "phpspec/prophecy": "^1.19",
-        "phpunit/phpunit": "^9.6",
-        "phpspec/prophecy-phpunit": "^2.2"
+        "squizlabs/php_codesniffer": "^3.11",
+        "phpspec/prophecy": "^1.20",
+        "phpunit/phpunit": "^11.5",
+        "phpspec/prophecy-phpunit": "^2.3",
+        "rector/rector": "^2.0"
     },
     "provide": {
         "psr/http-message-implementation": "1.0"
